@@ -1,0 +1,36 @@
+version: '2'
+
+services:
+  mariadb:
+    image: 'bitnami/mariadb:latest'
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+      - MARIADB_USER=dotfive
+      - MARIADB_DATABASE=dotfive
+      - MARIADB_PASSWORD=dotfive
+
+  myapp:
+    tty: true
+    image: 'bitnami/laravel:latest'
+    labels:
+      kompose.service.type: nodeport
+    environment:
+      - DB_HOST=mariadb
+      - DB_USERNAME=dotfive
+      - DB_DATABASE=dotfive
+      - DB_PASSWORD=dotfive
+    depends_on:
+      - mariadb
+    ports:
+      - 3000:3000
+    volumes:
+      - ./:/app
+  phpmyadmin:  
+   image: phpmyadmin/phpmyadmin
+   container_name: phpmyadmin-container
+   ports:
+    - 8080:80
+   links:
+    - mariadb
+   environment:
+    PMA_HOST: mariadb
