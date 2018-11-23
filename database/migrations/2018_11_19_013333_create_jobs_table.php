@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateItemsTable extends Migration
+class CreateJobsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,10 +13,16 @@ class CreateItemsTable extends Migration
      */
     public function up()
     {
-        Schema::create('items', function (Blueprint $table) {
+        Schema::create('jobs', function (Blueprint $table) {
             $table->increments('id');
+            $table->string('code');
             $table->string('title');
-            $table->string('alias')->unique();
+
+            $table->integer('question_id')->unsigned()->nullable();
+
+            $table->foreign('question_id')->references('id')->on('questions')->onDelete('cascade');
+            $table->unique(['code']);
+
             $table->timestamps();
         });
     }
@@ -28,6 +34,6 @@ class CreateItemsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('items');
+        Schema::dropIfExists('jobs');
     }
 }

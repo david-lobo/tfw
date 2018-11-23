@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateCrudsTable extends Migration
+class CreateCustomersTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,10 +13,11 @@ class CreateCrudsTable extends Migration
      */
     public function up()
     {
-        Schema::create('cruds', function (Blueprint $table) {
+        Schema::create('customers', function (Blueprint $table) {
             $table->increments('id');
-            $table->text('name');
-            $table->text('color');
+            $table->string('name');
+            $table->string('email');
+            $table->string('mobileno');
             $table->timestamps();
         });
     }
@@ -28,6 +29,6 @@ class CreateCrudsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('cruds');
+        Schema::dropIfExists('customers');
     }
 }

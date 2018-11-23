@@ -23,5 +23,7 @@ mix.webpackConfig(webpack => {
     };
 });
 
+//mix.js('resources/assets/js/app2.js', 'public/js');
+
 mix.js('resources/assets/js/app.js', 'public/js').sass('resources/assets/sass/app.scss', 'public/css');
 mix.copy( 'resources/assets/images', 'public/images', false );

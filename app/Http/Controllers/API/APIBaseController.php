@@ -7,12 +7,12 @@ use App\Http\Controllers\Controller as Controller;
 
 class APIBaseController extends Controller
 {
-    public function sendResponse($result, $message)
+    public function sendResponse($result, $message = 'OK')
     {
         $response = [
             'success' => true,
             'data'    => $result,
-            'message' => $message . 'TEST',
+            'message' => $message,
         ];
 
         return response()->json($response, 200);

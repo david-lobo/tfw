@@ -7,7 +7,6 @@ use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Cache;
 use App\Http\Requests;
 use App\Category;
-use App\Item;
 
 class CategoryController extends APIBaseController
 {
@@ -18,26 +17,26 @@ class CategoryController extends APIBaseController
      */
     public function index()
     {
-        $minutes = 10;
+        $minutes = 0;
         $cacheId = 'categories';
 
-        $categories = Cache::remember($cacheId, $minutes, function () {
-            return Category::where('parent_id', '=', null)->with('childs')->get();
+        $categorys = Cache::remember($cacheId, $minutes, function () {
+            return Category::all();
         });
-        $categories = is_null($categories) ? [] : $categories;
-        return response($categories->jsonSerialize(), Response::HTTP_OK);
+        $categorys = is_null($categorys) ? [] : $categorys;
+        return response($categorys->jsonSerialize(), Response::HTTP_OK);
     }
 
     public function all()
     {
-        $minutes = 10;
+        $minutes = 0;
         $cacheId = 'categories_all';
 
-        $categories = Cache::remember($cacheId, $minutes, function () {
+        $questions = Cache::remember($cacheId, $minutes, function () {
             return Category::all();
         });
 
-        return response($categories->jsonSerialize(), Response::HTTP_OK);
+        return response($questions->jsonSerialize(), Response::HTTP_OK);
     }
 
     /**
@@ -50,12 +49,8 @@ class CategoryController extends APIBaseController
     {
         $input = $request->all();
         $validator = \Validator::make($input, [
-            'title' => 'required|String|unique:categories,title',
-            'parent_id' => 'Int|exists:categories,id'
-            //'description' => 'required'
+            'title' => 'required|String|unique:categories,title'
         ]);
-
-        $input['parent_id'] = empty($input['parent_id']) ? 0 : $input['parent_id'];
 
         if ($validator->fails()) {
             return $this->sendError('Validation Error', $validator->errors());
@@ -64,11 +59,6 @@ class CategoryController extends APIBaseController
         $category = new Category;
         $category->title = $input['title'];
         $category->alias = str_slug($input['title']);
-
-        if ($input['parent_id']) {
-            $parent = Category::where('id', '=', $input['parent_id'])-> firstOrFail();
-            $category->parent_id = $parent->id;
-        }
 
         $category->save();
 
@@ -90,8 +80,7 @@ class CategoryController extends APIBaseController
         $category = Category::findOrFail($id);
 
         $validator = \Validator::make($input, [
-            'title' => 'required|String|unique:categories,title,' . $id,
-            'parent_id' => 'Int|exists:categories,id'
+            'title' => 'required|String|unique:categories,title,' . $id
         ]);
 
         if ($validator->fails()) {
@@ -100,11 +89,6 @@ class CategoryController extends APIBaseController
 
         $category->title = $input['title'];
         $category->alias = str_slug($input['title']);
-
-        if (isset($input['parent_id'])) {
-            $parent = Category::where('id', '=', $input['parent_id'])-> firstOrFail();
-            $category->parent_id = $parent->id;
-        }
 
         $category->save();
 

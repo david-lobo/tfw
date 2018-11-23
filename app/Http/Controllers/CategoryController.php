@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Department;
 
 class CategoryController extends Controller
 {
@@ -23,7 +24,15 @@ class CategoryController extends Controller
      */
     public function index()
     {
-        $users = [];
-        return view('categories.index')->with('users', $users);
+        $data = [];
+
+        $data['routes'] = [
+            'department' => route('departments.index', []),
+            'category' => route('categories.index', [])
+        ];
+        //$question = Question::findOrFail($id);
+        //$data['question'] = $question;
+        $data['route'] = \Request::route()->getName();
+        return view('categories.index')->with('data', $data);
     }
 }

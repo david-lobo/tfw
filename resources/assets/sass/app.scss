@@ -16,6 +16,13 @@
 
 @import '~toastr/toastr.scss';
 
+@import '~gijgo/css/gijgo.css';
+
+//@import '~jquery-steps/demo/css/jquery.steps.css';
+@import '~smartwizard/dist/css/smart_wizard.css';
+
+@import '~smartwizard/dist/css/smart_wizard_theme_dots.css';
+
 .navbar-laravel {
   background-color: #fff;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
@@ -24,5 +31,13 @@
 .modal-footer {
     justify-content: center;
 }
+
+.breadcrumb {
+	padding-top: 0.5rem;
+}
+
+
+
+
 
 

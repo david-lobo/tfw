@@ -3,18 +3,21 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
-use App\Item;
+use App\Question;
 
 class Category extends Model
 {
-    public $fillable = ['title','parent_id'];
+    //public $fillable = ['title','parent_id'];
+    //protected $visible = ['id', 'alias', 'title','parent_id', 'childs', 'items'];
+    //protected $with = ['childs', 'items'];
 
-    protected $visible = ['id', 'alias', 'title','parent_id', 'childs', 'items'];
-    protected $with = ['childs', 'items'];
+    public $fillable = ['title'];
+    protected $visible = ['id', 'alias', 'title', 'questions'];
+    //protected $with = ['childs', 'items'];
 
-    public function items()
+    public function questions()
     {
-        return $this->belongsToMany(Item::class);
+        return $this->hasMany(Question::class);
     }
 
 
@@ -23,7 +26,7 @@ class Category extends Model
      *
      * @return string
     */
-    public function childs() {
+    /*public function childs() {
         return $this->hasMany('App\Category','parent_id','id') ;
-    }
+    }*/
 }

@@ -5,37 +5,103 @@
  */
 
 import "jquery";
-require('./bootstrap');
+require('bootstrap/dist/js/bootstrap.min');
 import Mustache from 'mustache';
 import 'gijgo/js/gijgo';
-import gj from 'gijgo/js/gijgo';
-import bootbox from 'bootbox';
+//import gj from 'gijgo/js/gijgo';
+//import bootbox from 'bootbox';
 import toastr from 'toastr';
 require('bootstrap-select');
+//require('jquery-steps/build/jquery.steps.js');
+require('smartwizard/dist/js/jquery.smartWizard.js');
+
+import {QuestionTree} from './classes/Tree/QuestionTree';
+//import {QuestionPage} from './classes/Page/QuestionPage';
+//import {SubQuestionPage} from './classes/Page/SubQuestionPage';
+import {DynamicForm} from './classes/Form/DynamicForm';
+
+import {CheckUpdateForm} from './classes/Form/Type/CheckUpdateForm';
 
 let app;
 
-$(document).ready(function () {
-    app = new App();
-    app.init();
-});
-
 class App {
     constructor() {
-        this.trees = [];
+        /*this.data = {
+            question: {id: 4}
+        },*/
+        //this.trees = [];
         this.endpoints = {
+            question: "/d5-api/questions",
+            question_all: "/d5-api/questions/all",
             category: "/d5-api/categories",
             category_all: "/d5-api/categories/all",
             item: "/d5-api/items"
         },
+        this.page    
+    }
+
+    init() {
+        let page;
+        if (config.route === 'questions') {
+            page = new QuestionPage(config.routes);
+        } else if (config.route === 'checks' || config.route === 'checks_id') {
+            page = new CheckPage(config.routes);  
+        } else if (config.route === 'subquestions') {
+            page = new SubQuestionPage(config.routes);  
+        } else if (config.route === 'departments') {
+            page = new DepartmentPage(config.routes);  
+        } else if (config.route === 'categories') {
+            page = new CategoryPage(config.routes);  
+        } else if (config.route === 'checklist') {
+            page = new ChecklistPage(config.routes);  
+        } else if (config.route === 'jobs') {
+            page = new JobPage(config.routes);  
+        }
+
+        config.page = page;
+
+        if (undefined !== page) {
+            config.page.init();
+        }
+        
+        console.log('App Config', config);
+    }
+}
+
+class AdminPage {
+    constructor(entity, endpoints) {
+        this.trees = [];
+        this.grids = [];
+        //Form.editDialog = null;
+        this.deleteDialog = null;
+        /*this.endpoints = {
+            question: "/d5-api/questions",
+            question_all: "/d5-api/questions/all",
+            check: "/d5-api/checks",
+            check_all: "/d5-api/checks/all",
+            category: "/d5-api/categories",
+            category_all: "/d5-api/categories/all",
+            item: "/d5-api/items"
+        },*/
+        this.endpoints = endpoints;
         this.modal,
-        this.forms,
-        this.etags = {}
+        this.forms = [],
+        this.etags = {},
+        this.entity = entity
     }
 
     getTrees() {
         return this.trees;
     }
+
+    getDialog() {
+        return this.dialog;
+    }
+
+    getGrids() {
+        return this.grids;
+    }
+
 
     getEndpoints() {
         return this.endpoints;
@@ -49,17 +115,23 @@ class App {
         return this.modal;
     }
 
-    getCategoriesAll() {
-        return this.categoriesAll;
-    }
-
     setModal(modal) {
         this.modal = modal;
     }
 
+    /*loadAllCategories() {
+        $.get(this.endpoints.category_all, function (data) {
+            config.page.setCategoriesAll(data);
+        });
+    }
+
+    getCategoriesAll() {
+        return this.categoriesAll;
+    }
+
     setCategoriesAll(categories) {
         this.categoriesAll = categories;
-    }
+    }*/
 
     init() {
         $.ajaxSetup({
@@ -68,64 +140,136 @@ class App {
             }
         });
 
-        $(document).ajaxComplete(function(ev, jqXHR, settings) {
-            let etag = jqXHR.getResponseHeader('ETag');
-            let prefix = '';
-            let type;
+        let that = this;
+        //console.log('THAT1', that);
+        this.loadAllCategories(function() {
+            //that.initAjaxForms();
+            //that.initUIList();
 
-            if (settings.type === 'GET') {
-                if (settings.url.includes('categories')) {
-                    prefix = 'Category';
-                    type = prefix.toLowerCase();
-                } else if (settings.url.includes('items')) {
-                    prefix = 'Item';
-                    type = prefix.toLowerCase();
-                }
-
-                if (!app.etags.hasOwnProperty(prefix)) {
-                    app.etags[prefix] = {}; 
-                }
-
-                if (app.etags[prefix].hasOwnProperty(settings.url)) {
-                    if (app.etags[prefix][settings.url] !== null && etag !== null) {
-                        if (app.etags[prefix][settings.url] !== etag) {
-                            if (!settings.url.includes('all')) {
-                                if (prefix !== '') {
-                                    toastr.info(prefix + ' has changed');
-                                    app.etags[prefix] = {};
-                                    console.log(prefix + ' has changed', app.etags[prefix][settings.url], etag);
-                                }
-                            }
-                        }
-                    }
-                }
-
-                app.etags[prefix][settings.url] = etag;
-            }
-
+            that.loadAllDepartments(function() {
+           // console.log('THAT2', that);
+            that.initAjaxForms();
+            that.initUIList();
+        });
         });
 
-        this.initTrees();
-        this.loadAllCategories();
-        this.syncData();
-        this.initModalForms(this.categoriesAll);
+
+        //this.loadAllCategories();
+        
+        //this.loadAllQuestions();
+        ///this.syncData();
+        //this.initModalForms(this.questionsAll);
+        //this.initModalForms();
     }
 
-    initTrees() {
-        let tree;
-        tree = new CategoryTree($('#categories'), 'category', this.endpoints.category);
-        tree.init();
+    loadAllCategories(callback) {
 
-        this.trees[tree.getEntity()] = tree;
-
-        tree = new ItemTree($('#items'), 'item', this.endpoints.item);
-        tree.init();
-
-        this.trees[tree.getEntity()] = tree;
+        $.get(config.endpoints.category_all, function (data) {
+            config.categories = data;
+            callback();
+        });
+        
     }
 
-    initModalForms(categoriesAll) {
-        let forms = new ModalForms(categoriesAll);
+    loadAllDepartments(callback) {
+
+        $.get(config.routes.department, function (data) {
+            config.departments = data;
+            callback();
+        });
+        
+    }
+
+    initAjaxForms() {
+        let deleteName = capitalize(this.entity) + 'DeleteForm';
+        let updateName = capitalize(this.entity) + 'UpdateForm';
+        let addName = capitalize(this.entity) + 'AddForm';
+        //let deleteForm = new classes[x];
+        let deleteForm = new DynamicForm(deleteName, [this.endpoints[this.entity]]);
+        let updateForm = new DynamicForm(updateName, [this.endpoints[this.entity]]);
+        let addForm = new DynamicForm(addName, [this.endpoints[this.entity]]);
+        //let updateForm = new CheckUpdateForm();
+        //let addForm = new CheckAddForm();
+        //
+        //updateForm.constructor.apply(updateForm, [this.endpoints[this.entity]]);
+
+        this.forms['delete'] = deleteForm;
+        this.forms['update'] = updateForm;
+        this.forms['add'] = addForm;
+
+        this.testButtons();
+    }
+
+    testButtons() {
+
+        let selector, entity, endpoint, method, testData, callback;
+
+        let deleteForm = config.page.forms['delete'];
+        let updateForm = config.page.forms['update'];
+        let addForm = config.page.forms['add'];
+
+
+        $('#testDelete').on('click', function() {
+            console.log('Test Delete');
+
+            deleteForm.showModal({data: {record: {id: '7'}}});
+
+        })
+
+        $('#testEdit').on('click', function() {
+            console.log('Test Update');
+            testData = {data: {record: {id: '7', content: 'bla bla', answer: '1', question_id: 4}}};
+            callback = updateForm.showModal(testData);
+            callback(testData);
+        })
+
+        $('#testAdd').on('click', function() {
+            console.log('Test Add');
+            testData = {data: {record: {question_id: 4}}};
+            callback = addForm.showModal();
+            callback(testData);
+        })
+
+        $('#testBuild').on('click', function() {
+            console.log('Test Build');
+            //type="hidden" data-validation-name="question_id" id="question_id" name="question_id" value="" 
+            let fields = [
+            {
+                type: 'hidden',
+                name: 'question_id'
+            },
+            {
+                type: 'hidden',
+                name: 'id'
+            },
+            {
+                type: 'textarea',
+                name: 'content',
+                label: 'Content'
+            },
+                        {
+                type: 'select',
+                name: 'answer',
+                label: 'Answer',
+                options: [
+                    {
+                        label: 'Yes',
+                        value: 1
+                    },
+                    {
+                        label: 'No',
+                        value: 0
+                    }
+                ]
+            }
+            ];
+            let builder = new FormBuilder('#formBuilder', fields);
+            builder.build();
+        });
+    }
+
+    initModalForms(questionsAll) {
+        let forms = new ModalForms();
         forms.init();
         this.forms = forms;
     }
@@ -135,53 +279,251 @@ class App {
         $('.btn.add').prop('disabled', false);
     }
 
-    reloadCategoryTree() {
-        this.trees['category'].reload();
-    }
-
-    reloadItemTree() {
-        this.trees['item'].reload();
-    }
-
     reloadAllData() {
-        app.reloadItemTree();
-        app.reloadCategoryTree();
+        //app.reloadItemTree();
+        //app.reloadCategoryTree();
+        app.page.reloadQuestionTree();
     }
 
     syncData() {
         setInterval(function () {
-            app.reloadCategoryTree();
-            app.reloadItemTree();
-            app.loadAllCategories();
+            app.page.reloadCategoryTree();
+            app.page.reloadItemTree();
+            app.page.loadAllCategories();
         }, 15000)
     }
 
-    loadAllCategories() {
-        $.get(this.endpoints.category_all, function (data) {
-            app.setCategoriesAll(data);
+    startButtonLoader(btn) {
+        let loadingText = '<i class="fa fa-circle-o-notch fa-spin"></i> Saving...';
+        if ($(btn).html() !== loadingText) {
+            $(btn).attr('data-original-text', $(btn).html());
+            $(btn).html(loadingText);
+        }
+    }
+
+    stopButtonLoader(btn) {
+        $(btn).html($(btn).data('original-text'));
+    }
+}
+
+class ListPage extends AdminPage {
+    constructor(entity, endpoints) {
+        super(entity, endpoints);
+    }
+    init () {
+
+
+        super.init();
+
+        //this.testButtons();
+    }
+
+    initGrids() {
+
+       let gridName = capitalize(this.entity) + 'Grid';
+        //let deleteForm = new classes[x];
+        let grid = new DynamicGrid(gridName);
+        
+        //console.log('initGrids', gridName, this.endpoints[this.entity], this.entity);
+        grid.constructor.apply(grid, [$('#' + this.entity + 'Grid'), this.entity, this.endpoints[this.entity]])
+    
+        
+        //grid = new CheckGrid($('#' + this.entity + 'Grid'), this.entity, this.endpoints[this.entity]);
+        grid.init();
+
+
+
+        this.grids[grid.getEntity()] = grid;
+    }
+
+    /*testButtons() {
+        console.log('Test Buttons');
+        let selector, entity, endpoint, method, testData, callback;
+
+        let deleteForm = app.page.forms['delete'];
+        let updateForm = app.page.forms['update'];
+        let addForm = app.page.forms['add'];
+
+
+        $('#testDelete').on('click', function() {
+            console.log('Test Delete');
+
+            deleteForm.showModal({data: {record: {id: '7'}}});
+
+        })
+
+        $('#testEdit').on('click', function() {
+            console.log('Test Update');
+            testData = {data: {record: {id: '7', content: 'bla bla', answer: '1', question_id: 4}}};
+            callback = updateForm.showModal(testData);
+            callback(testData);
+        })
+
+        $('#testAdd').on('click', function() {
+            console.log('Test Add');
+            testData = {data: {record: {question_id: 4}}};
+            callback = addForm.showModal();
+            callback(testData);
+        })
+    }*/
+
+}
+
+
+class CheckPage extends ListPage {
+    constructor(endpoints) {
+        super('check', endpoints);
+    }
+
+    init() {
+        super.init();
+    }
+
+    initUIList() {
+        this.initGrids();
+    }
+
+
+}
+
+class DepartmentPage extends ListPage {
+    constructor(endpoints) {
+        super('department', endpoints);
+    }
+
+    init() {
+        super.init();
+    }
+
+    initUIList() {
+        this.initGrids();
+    }
+}
+
+class CategoryPage extends ListPage {
+    constructor(endpoints) {
+        super('category', endpoints);
+    }
+
+    init() {
+        super.init();
+    }
+
+    initUIList() {
+        this.initGrids();
+    }
+}
+
+class JobPage extends ListPage {
+    constructor(endpoints) {
+        super('job', endpoints);
+    }
+
+    init() {
+        super.init();
+    }
+
+    initUIList() {
+        this.initGrids();
+    }
+}
+
+class QuestionPage extends ListPage {
+    constructor(endpoints) {
+        
+        super('question', endpoints);
+    }
+
+    init() {
+        super.init();
+
+        //this.loadAllCategories(function(){console.log('categories callback')});
+    }
+
+    initUIList() {
+        this.initGrids();
+    }
+
+    static viewSubQuestions(event) {
+
+        let that = this;
+        return function (event) {
+            //console.log('viewSubQuestions', event);
+            let entity = event.data.record;
+            let newURL = config.routes.subquestions + '/' + entity.id;
+            window.location = newURL;
+        }
+    }
+
+    /*loadAllCategories(callback) {
+        let that = this;
+        $.get(config.endpoints.category_all, function (data) {
+            config.categories = data;
+            callback();
+        });
+    }*/
+}
+
+class SubQuestionPage extends AdminPage {
+
+    constructor(endpoints) {
+        super('question', endpoints);
+    }
+
+    getQuestionsAll() {
+        return this.questionsAll;
+    }
+
+    setQuestionsAll(questions) {
+        this.questionsAll = questions;
+    }
+
+    initUIList() {
+        this.initTrees();
+    }
+
+    initTrees() {
+        let tree, questionId;
+
+        questionId = config.question.id;
+        tree = new QuestionTree($('#questions'), 'question', config.routes.subquestions + '/' + questionId);
+        tree.init();
+
+        this.trees[tree.getEntity()] = tree;
+    }
+
+    reloadQuestionTree() {
+        this.trees['question'].reload();
+    }
+
+    loadAllQuestions() {
+        $.get(this.endpoints.question_all, function (data) {
+            app.page.setQuestionsAll(data);
         });
     }
 }
 
-class TreeUI {
+class GridUI {
     constructor(el, entity, url) {
         this.el = el;
         this.entity = entity;
         this.url = url;
-        this.tree;
+        this.grid;
         this.selectedId = 0;
         this.selectedEntity = null;
         this.ETag = null;
         this.lastQueryUrl = null;
         this.expanded = {};
+        this.dialog = null;
+        this.records;
     }
 
     greet() {
         return `${this.name} says hello.`;
     }
 
-    getTree() {
-        return this.tree;
+    getGrid() {
+        return this.grid;
     }
 
     getEntity() {
@@ -230,17 +572,27 @@ class TreeUI {
     }
 
     init() {
-        this.tree = this.el.tree({
-            uiLibrary: 'bootstrap4',
-            textField: 'title',
-            childrenField: 'childs',
-            dataSource: this.getAJAXConfig(),
-            primaryKey: 'id'
-        });
 
-        this.bindSelect();
-        this.bindUnselect();
-        this.bindExpand();
+        //console.log('GridUI.init', this.el);
+        let gridConfig = this.getGridConfig();
+        
+        this.grid = this.el.grid(gridConfig);
+
+        if (undefined !== config.page.forms && undefined !== config.page.forms['add']) {
+            let addForm = config.page.forms['add'];
+            let fn = addForm.showModal();
+            let data = {};
+
+            if (undefined !== config.question) {
+                data.record = {question_id: config.question.id};
+            }
+            $('.toolbar .add').on('click', data, fn);
+        }
+
+        //this.bindSelect();
+        //this.bindUnselect();
+        //this.bindExpand();
+        //this.initDialog();
     }
 
     reloadQuery() {
@@ -249,7 +601,12 @@ class TreeUI {
 
     reload() {
         let query = this.reloadQuery();
-        this.tree.reload(query);
+        this.grid.reload(query);
+    }
+
+    reloadCallback(entity) {
+        return function (jqXHR, textStatus) {
+        }
     }
 
     errorCallback(entity) {
@@ -261,141 +618,26 @@ class TreeUI {
         };
     }
 
-    reloadCallback(entity) {
-        return function (jqXHR, textStatus) {
-            let treeUI, tree, selectedId;
-            treeUI = app.getTrees()[entity];
-            tree = treeUI.getTree();
-            selectedId = treeUI.getSelectedId();
-            //tree.expandAll();
 
-            if (selectedId && selectedId != 0) {
-                let node = tree.getNodeById(selectedId);
-                if (node && node !== undefined) {
-                    tree.select(node);
-                } else {
-                    treeUI.setSelectedId(0);
-                    treeUI.setSelectedEntity(null);
-                }
-            }
-
-            console.log('expanded', treeUI.expanded);
-
-            for (let key of Object.keys(treeUI.expanded)) {  
-              let mealName = treeUI.expanded[key];
-              // ... do something with mealName
-              console.log(key);
-              let node = tree.getNodeById(key);
-              tree.expand(node);
-            }
-
-            /*let lastQueryUrl = treeUI.getLastQueryUrl();
-            const etag = treeUI.getETag();
-
-            if (etag !== null && etag !== jqXHR.getResponseHeader('ETag')) {
-                if (lastQueryUrl != null && lastQueryUrl == this.url) {
-                    let prefix = entity.charAt(0).toUpperCase() + entity.substr(1);
-                    //toastr.info(prefix + ' has changed');
-                }
-            }
-
-            treeUI.setETag(jqXHR.getResponseHeader('ETag'));
-            treeUI.setLastQueryUrl(this.url);*/
-        }
-    }
 
     selectCallback(entity) {
-        return function (e, node, id) {
-            let treeUI, tree;
-            treeUI = app.getTrees()[entity];
-            tree = treeUI.getTree();
-            treeUI.setSelectedId(id);
+        return function (e, $row, id, record) {
+            let gridUI, grid;
+            gridUI = config.page.getGrids()[entity];
+            grid = gridUI.getGrid();
+            gridUI.setSelectedId(id);
 
-            if (treeUI.getSelectedId() !== 0) {
-                treeUI.setSelectedEntity(tree.getDataById(treeUI.getSelectedId()));
-
-                $('.' + entity + ' .btn.edit, .' + entity + ' .btn.delete').prop('disabled', false);
-                if (entity == 'category') {
-                    let itemTreeUI = app.getTrees()['item'];
-                    itemTreeUI.reload();
-                }
-            }
-        }
-    }
-
-    unselectCallback(entity) {
-        return function (e, node, id) {
-            let treeUI, tree;
-            treeUI = app.getTrees()[entity];
-            tree = treeUI.getTree();
-            treeUI.setSelectedId(0);
-            treeUI.setSelectedEntity(null);
-
-            $('.' + entity + '.btn.edit, .' + entity + ' .btn.delete').prop('disabled', true);
-
-            if (entity == 'category') {
-                let itemTreeUI = app.getTrees()['item'];
-                itemTreeUI.reload();
-            }
-        }
-    }
-
-    expandCallback(entity) {
-        return function (e, node, id) {
-            //console.log('expand', e, node, id);
-
-            let treeUI, tree;
-            treeUI = app.getTrees()[entity];
-            tree = treeUI.getTree();
-
-            treeUI.expanded[id] = true;
-        }
-    }
-
-    collapseCallback(entity) {
-        return function (e, node, id) {
-            //console.log('collapse', e, node, id);
-            
-            let treeUI, tree;
-            treeUI = app.getTrees()[entity];
-            tree = treeUI.getTree();
-
-            delete treeUI.expanded[id];
         }
     }
 
     bindSelect() {
-        this.tree.on('select', this.selectCallback(this.entity));
-    }
+        this.grid.on('rowSelect', this.selectCallback(this.entity));
+        //
 
-    bindUnselect() {
-        this.tree.on('unselect', this.unselectCallback(this.entity));
-    }
-    
-    bindExpand() {
-        this.tree.on('expand', this.expandCallback(this.entity));
-    }
-
-    bindCollapse() {
-        this.tree.on('collapse', this.collapseCallback(this.entity));
     }
 }
 
-class ItemTree extends TreeUI {
-    constructor(el, entity, url) {
-        super(el, entity, url);
-    }
-
-    reloadQuery() {
-        let query, categoryTreeUI;
-        query = super.reloadQuery();
-        categoryTreeUI = app.getTrees()['category'];
-        query.category = categoryTreeUI.getSelectedId();
-        return query;
-    }
-}
-
-class CategoryTree extends TreeUI {
+class CheckGrid extends GridUI {
     constructor(el, entity, url) {
         super(el, entity, url);
     }
@@ -403,331 +645,447 @@ class CategoryTree extends TreeUI {
     reloadQuery() {
         return super.reloadQuery();
     }
+
+    getAJAXConfig() {
+        let config = super.getAJAXConfig();
+        if (undefined !== config.question) {
+            config.url += '/' + config.question.id;
+        }
+        return config;
+    }
+
+    getGridConfig() {
+        let deleteForm = config.page.forms['delete'];
+        let updateForm = config.page.forms['update'];
+
+        return {
+            //width: 900,
+            primaryKey: 'id',
+            uiLibrary: 'bootstrap4',
+            dataSource: this.getAJAXConfig(),
+            selectionMethod: 'basic',
+            columns: [
+                    { field: 'id', title: 'Id', width: 56, sortable: false },
+                    { field: 'content', title: 'Content' },
+                    { field: 'answer', title: 'Answer', renderer: function (value, record) { return record.answer === 1 ? 'Yes' : 'No'; }},
+                    { field: 'department', title: 'Department', renderer: function (value, record) { return record.department.title; }},
+                    { title: '', field: 'Edit', width: 42, type: 'icon', icon: 'fa fa-pencil', tooltip: 'Edit', events: { 'click': updateForm.showModal() } },
+                    { title: '', field: 'Delete', width: 42, type: 'icon', icon: 'fa fa-remove', tooltip: 'Delete', events: { 'click': deleteForm.showModal() } }
+                ],
+            //pager: { limit: 5 }
+        }
+    }
 }
 
-class ModalForms {
-    constructor(categoriesAll) {
-        this.categoriesAll = categoriesAll;
+class QuestionGrid extends GridUI {
+    constructor(el, entity, url) {
+        super(el, entity, url);
+    }
+
+    reloadQuery() {
+        return super.reloadQuery();
+    }
+
+    getGridConfig() {
+
+        let deleteForm = config.page.forms['delete'];
+        let updateForm = config.page.forms['update'];
+
+        return {
+            //width: 900,
+            primaryKey: 'id',
+            uiLibrary: 'bootstrap4',
+            dataSource: this.getAJAXConfig(),
+            selectionMethod: 'basic',
+            columns: [
+                    { field: 'id', title: 'Id', width: 56, sortable: false },
+                    { field: 'content', title: 'Content' },
+                    { field: 'category', title: 'Category', renderer: function (value, record) { return record.category.title; }},
+                    { title: '', field: 'Detail', width: 42, type: 'icon', icon: 'fa fa-tasks', tooltip: 'Detail', events: { 'click': QuestionPage.viewSubQuestions() } },
+                    { title: '', field: 'Edit', width: 42, type: 'icon', icon: 'fa fa-pencil', tooltip: 'Edit', events: { 'click': updateForm.showModal() } },
+                    { title: '', field: 'Delete', width: 42, type: 'icon', icon: 'fa fa-remove', tooltip: 'Delete', events: { 'click': deleteForm.showModal() } }
+                ],
+            //pager: { limit: 5 }
+        }
+    }
+}
+
+class DepartmentGrid extends GridUI {
+    constructor(el, entity, url) {
+        super(el, entity, url);
+    }
+
+    reloadQuery() {
+        return super.reloadQuery();
+    }
+
+    getGridConfig() {
+
+        let deleteForm = config.page.forms['delete'];
+        let updateForm = config.page.forms['update'];
+
+        return {
+            //width: 900,
+            primaryKey: 'id',
+            uiLibrary: 'bootstrap4',
+            dataSource: this.getAJAXConfig(),
+            selectionMethod: 'basic',
+            columns: [
+                    { field: 'id', title: 'Id', width: 56, sortable: false },
+                    { field: 'title', title: 'Title' },
+                    { title: '', field: 'Edit', width: 42, type: 'icon', icon: 'fa fa-pencil', tooltip: 'Edit', events: { 'click': updateForm.showModal() } },
+                    { title: '', field: 'Delete', width: 42, type: 'icon', icon: 'fa fa-remove', tooltip: 'Delete', events: { 'click': deleteForm.showModal() } }
+                ],
+            //pager: { limit: 5 }
+        }
+    }
+}
+
+class CategoryGrid extends GridUI {
+    constructor(el, entity, url) {
+        super(el, entity, url);
+    }
+
+    reloadQuery() {
+        return super.reloadQuery();
+    }
+
+    getGridConfig() {
+
+        let deleteForm = config.page.forms['delete'];
+        let updateForm = config.page.forms['update'];
+
+        return {
+            //width: 900,
+            primaryKey: 'id',
+            uiLibrary: 'bootstrap4',
+            dataSource: this.getAJAXConfig(),
+            selectionMethod: 'basic',
+            columns: [
+                    { field: 'id', title: 'Id', width: 56, sortable: false },
+                    { field: 'title', title: 'Title' },
+                    { title: '', field: 'Edit', width: 42, type: 'icon', icon: 'fa fa-pencil', tooltip: 'Edit', events: { 'click': updateForm.showModal() } },
+                    { title: '', field: 'Delete', width: 42, type: 'icon', icon: 'fa fa-remove', tooltip: 'Delete', events: { 'click': deleteForm.showModal() } }
+                ],
+            //pager: { limit: 5 }
+        }
+    }
+}
+
+class JobGrid extends GridUI {
+    constructor(el, entity, url) {
+        super(el, entity, url);
+    }
+
+    reloadQuery() {
+        return super.reloadQuery();
+    }
+
+    getGridConfig() {
+
+        let deleteForm = config.page.forms['delete'];
+        let updateForm = config.page.forms['update'];
+
+        return {
+            //width: 900,
+            primaryKey: 'id',
+            uiLibrary: 'bootstrap4',
+            dataSource: this.getAJAXConfig(),
+            selectionMethod: 'basic',
+            columns: [
+                    { field: 'id', title: 'Id', width: 56, sortable: false },
+                    { field: 'code', title: 'Job No' },
+                    { field: 'title', title: 'Title' },
+                    { title: '', field: 'Edit', width: 42, type: 'icon', icon: 'fa fa-pencil', tooltip: 'Edit', events: { 'click': updateForm.showModal() } },
+                    { title: '', field: 'Delete', width: 42, type: 'icon', icon: 'fa fa-remove', tooltip: 'Delete', events: { 'click': deleteForm.showModal() } }
+                ],
+            //pager: { limit: 5 }
+        }
+    }
+}
+
+class DynamicGrid {
+    constructor (className) {
+        const classes = {
+            QuestionGrid,
+            CheckGrid,
+            DepartmentGrid,
+            CategoryGrid,
+            JobGrid
+        };
+
+        return new classes[className];
+    }
+}  
+
+class QuestionSelectGrid extends GridUI {
+    constructor(el, entity, url) {
+        super(el, entity, url);
+        config['questions'] = [];
+    }
+
+    reloadQuery() {
+        return super.reloadQuery();
+    }
+
+    getGridConfig() {
+
+        //let deleteForm = config.page.forms['delete'];
+        //let updateForm = config.page.forms['update'];
+
+        return {
+            //width: 900,
+            primaryKey: 'id',
+            uiLibrary: 'bootstrap4',
+            dataSource: this.getAJAXConfig(),
+            selectionMethod: 'basic',
+            columns: [
+                    { field: 'id', title: 'Id', width: 56, sortable: false },
+                    { field: 'content', title: 'Content' },
+                    { field: 'category', title: 'Category', renderer: function (value, record) { return record.category.title; }},
+                    { title: '', field: 'Yes', width: 100, tmpl: '<button class="btn btn-primary">Select</button>', tooltip: 'Detail', events: { 'click': this.questionSelected() } },
+                    //{ title: '', field: 'Edit', width: 42, type: 'icon', icon: 'fa fa-pencil', tooltip: 'Edit', events: { 'click': updateForm.showModal() } },
+                    //{ title: '', field: 'Delete', width: 42, type: 'icon', icon: 'fa fa-remove', tooltip: 'Delete', events: { 'click': deleteForm.showModal() } }
+                ],
+            //pager: { limit: 5 }
+        }
+    }
+
+    questionSelected(event) {
+        let that = this;
+        return function (event) {
+
+            //console.log('ChecklistPage.questionSelected', that.entity);
+            $.get(that.url + '/' + event.data.record.id, function (data) {
+                //config.categories = data;
+                //callback();
+                config.questions[event.data.record.id] = data.data;
+                config.page.checklist = new CheckList(data.data, config.routes);
+                config.page.checklist.init();
+
+            });
+        }
+    }
+
+} 
+
+class ChecklistPage {
+    constructor(endpoints) {
+        this.endpoints = endpoints;
+        this.checklist;
+        this.grids = [];
+        this.questions = [];
     }
 
     init() {
-        this.bindCRUDButtons();
+        //console.log('init ChecklistPage', '#questionGrid', 'question', config.routes.question);
+        let grid = new QuestionSelectGrid($('#questionGrid'), 'question', config.routes.question);
+        grid.init();
+
+        this.grids['checklist'] = grid;
+    }
+} 
+
+class CheckList {
+    constructor(question, endpoints) {
+        this.question = question;
+        this.endpoints = endpoints;
     }
 
-    setCategoriesAll(categories) {
-        this.categoriesAll = categories;
+    init() {
+        //console.log('Checklist.init', this.question, this.endpoints);
+        //this.getSubQuestions();
+        this.initSteps();
     }
 
-    initCRUDModal(entity, method) {
-        let treeUI, tree, categorySelectLabel, categorySelectId;
-        treeUI = app.getTrees()[entity];
-        tree = treeUI.getTree();
+    initSteps() {
+        //$('#smartwizard').smartWizard();
+        this.buildTemplate();
+        let config = this.getConfig();
+        $('#smartwizard').smartWizard(config);
 
-        if (method === 'delete') {
-            this.initDeleteModal(tree, treeUI.getSelectedId(), treeUI.getEntity(), this.deleteCallback(entity));
-        } else {
-            if (entity === 'category') {
-                categorySelectLabel = 'Parent Category';
-                categorySelectId = 'parent_id';
-            } else if (entity == 'item') {
-                categorySelectLabel = 'Categories';
-                categorySelectId = 'category_ids';
-            } else {
-                return false;
-            }
-            this.initEditModal("#mustacheTemplate_categoryForm", method, treeUI.getEntity(), categorySelectLabel, categorySelectId, this.saveCallback(entity));
-        }
-    }
+              // Initialize the leaveStep event
+      $("#smartwizard").on("leaveStep", function(e, anchorObject, stepNumber, stepDirection) {
+         //console.log('leaveStep', e, anchorObject, stepNumber, stepDirection);
+                var elmFormId = "#step-" + (stepNumber + 1);
+                // stepDirection === 'forward' :- this condition allows to do the form validation
+                // only on forward navigation, that makes easy navigation on backwards still do the validation when going next
+                if(stepDirection === 'forward' && elmFormId){
+                    var radioValue = $(elmFormId).find('input[type="radio"]:checked').val();
+                    //console.log(elmFormId, radioValue);
 
-    initEditModal(template, action, type, categorySelectLabel, categorySelectId, callback) {
-        let html, newEl, modal;
-        template = $(template).html();
-        html = Mustache.to_html(template, {
-            action: action,
-            type: type,
-            category_select_label: categorySelectLabel,
-            category_select_id: categorySelectId
-        });
-        newEl = $(html);
-
-        modal = bootbox.dialog({
-            className: action,
-            message: html,
-            title: 'Modal',
-            buttons: [{
-                label: "Save",
-                className: "btn btn-primary pull-left save",
-                callback: function () {
-                    callback();
-                    return false;
-                }
-            },
-            {
-                label: "Close",
-                className: "btn btn-default pull-left",
-                callback: function () {
-                }
-            }],
-            show: false,
-            onEscape: function () {
-                app.getModal().modal("hide");
-            }
-        });
-
-        app.setModal(modal);
-    }
-
-    initDeleteModal(dataTree, selectedId, type, callback) {
-        let data, modal;
-        data = dataTree.getDataById(selectedId);
-        modal = bootbox.dialog({
-            className: 'delete',
-            message: 'Are you sure you want to delete the <b>' + data.title + '</b> ' + type + '?',
-            title: "Delete " + type,
-            buttons: [{
-                label: "Delete",
-                className: "btn btn-danger pull-left delete",
-                callback: function () {
-                    callback();
-                    return false;
-                }
-            },
-            {
-                label: "Cancel",
-                className: "btn btn-light pull-left",
-                callback: function () {
-                    //
-                }
-            }],
-            show: false,
-            onEscape: function () {
-                app.getModal().modal("hide");
-            }
-        });
-
-        app.setModal(modal);
-    }
-
-    deleteCallback(type) {
-        return function () {
-            let url, selectedId, treeUI, tree, modal;
-            treeUI = app.getTrees()[type];
-            tree = treeUI.getTree();
-            selectedId = treeUI.getSelectedId();
-            url = app.getEndpoints()[type] + '/' + selectedId;
-            modal = app.getModal();
-            $.ajax({
-                type: 'DELETE',
-                url: url,
-                beforeSend: function () {
-                    app.getForms().startButtonLoader('.modal-footer .btn.delete');
-                },
-                success: function (data, textStatus, jqhr) {
-                    let treeUI, tree;
-                    app.getModal().modal('hide');
-                    treeUI = app.getTrees()[type];
-                    tree = treeUI.getTree();
-                    treeUI.setSelectedId(0);
-                    treeUI.setSelectedEntity(null);
-                    toastr.success('The ' + type + ' was deleted');
-                    app.reloadAllData();
-                },
-                error: function (jqXHR, status, error) {
-                    let msg = 'There was an error with that request';
-                    msg = jqXHR.responseJSON.message != undefined ? jqXHR.responseJSON.message : msg;
-                    app.getModal().modal('hide');
-                    toastr.error(msg.substring(0, 125) + '...');
-                },
-                complete: function () {
-                    app.getForms().stopButtonLoader('.modal-footer .btn.delete');
-                }
-            });
-        }
-    }
-
-    saveCallback(type) {
-        return function () {
-            let requestType, modal, action, type, title, formValues, endpoints, url, selectedParent, treeUI, tree, selectedId;
-            modal = app.getModal();
-            action = modal.find('form input[name="action"]').val();
-            type = modal.find('form input[name="type"]').val();
-            title = modal.find('form input[name="title"]').val();
-            formValues = {};
-            endpoints = app.getEndpoints();
-            url = endpoints[type];
-            selectedParent = $('select.categories-select').val();
-            treeUI = app.getTrees()[type];
-            tree = treeUI.getTree();
-            selectedId = treeUI.getSelectedId();
-
-            if (action === 'add') {
-                requestType = 'POST';
-            } else if (action === 'edit') {
-                requestType = 'PUT';
-                 url += '/' + selectedId;
-            }
-
-            if (type === 'item') {
-                formValues['category_ids'] = selectedParent;
-
-            } else if (type === 'category') {
-                formValues['parent_id'] = selectedParent[0];
-            }
-
-            formValues['title'] = title;
-
-            $.ajax({
-                type: requestType,
-                url: url,
-                data: formValues,
-                beforeSend: function () {
-                    $(modal).find('.form-control').removeClass('is-invalid');
-                    $(modal).find('form .invalid-feedback').remove();
-                    app.getForms().startButtonLoader('.modal-footer .btn.save');
-                },
-                success: function (data, textStatus, jqhr) {
-                    app.getModal().modal('hide');
-                    toastr.success('The ' + type + ' was saved');
-                    app.reloadAllData();
-                },
-                error: function (jqXHR, status, error) {
-                    let msg = 'There was an error with that request';
-                    if (jqXHR.responseJSON) {
-                        if (jqXHR.responseJSON.message === 'Validation Error') {
-                            let validationErrors = jqXHR.responseJSON.data;
-                            modal.find('form .form-group').each(function (i, v) {
-                                let val = $(v).attr('data-validation-name');
-                                if (validationErrors.hasOwnProperty(val)) {
-                                    $(v).find('.form-control').addClass('is-invalid');
-                                    $(v).append('<div class="invalid-feedback">' + validationErrors[val] + '</div>');
-                                }
-                            });
-                            return false;
-                        }
+                    if (undefined === radioValue) {
+                        $(elmFormId).find('.invalid-feedback').show();
+                        return false;
                     }
-                    msg = jqXHR.responseJSON.message != undefined ? jqXHR.responseJSON.message : msg;
-                    app.getModal().modal('hide');
-                    toastr.error(msg.substring(0, 125) + '...');
-                },
-                complete: function () {
-                    app.getForms().stopButtonLoader('.modal-footer .btn.save');
+
+                    $(elmFormId).find('.invalid-feedback').hide();
+                    /*elmForm.validator('validate');
+                    var elmErr = elmForm.children('.has-error');
+                    if(elmErr && elmErr.length > 0){
+                        // Form validation failed
+                        return false;
+                    }*/
                 }
-            });
-        }
-    }
 
-    bindCRUDButtons() {
-        $('.crud .btn').on('click', function () {
-            let treeUI, selectedId, tree, btn, action, entity;
-            btn = $(this);
-            action = btn.attr('data-action');
-            entity = btn.attr('data-entity');
-            treeUI = app.getTrees()[entity];
-            selectedId = treeUI.getSelectedId();
-            tree = treeUI.getTree();
-
-            if (action != 'add') {
-                if (selectedId == 0 || selectedId == undefined) {
-                    return false;
-                }
-            }
-
-            app.getForms().initCRUDModal(entity, action);
-            app.getForms().bindUpdateCRUDModal();
-            app.getModal().modal("show");
-        });
-    }
-
-    bindUpdateCRUDModal() {
-        app.getModal().on('shown.bs.modal', function (event) {
-            let selectedId, selectedEntity, action, type, modal, closeButton, selectpickerConfig, treeUI, tree, options, option;
-            action = $('.bootbox.modal').find('form input[name="action"]').val();
-            type = $('.bootbox.modal').find('form input[name="type"]').val();
-            modal = $(this)
-            closeButton = modal.find(".modal-header .close")[0].outerHTML;
-            modal.find(".modal-header .close").remove();
-            modal.find(".modal-header").append(closeButton);
-
-            selectpickerConfig = {
-                style: 'btn-info',
-                size: 4
-            };
-
-            if (undefined == action) {
                 return true;
-            }
-
-            if (type === 'category') {
-                selectpickerConfig['maxOptions'] = 1;
-            }
-
-            treeUI = app.getTrees()[type];
-            tree = treeUI.getTree();
-
-            let modalTitle1 = action.charAt(0).toUpperCase() + action.substr(1);
-            let modalTitle2 = type.charAt(0).toUpperCase() + type.substr(1);
-            
-            modal.find('.modal-title').text(modalTitle1 + ' ' + modalTitle2);
-            selectedId = treeUI.getSelectedId();
-            selectedEntity = treeUI.getSelectedEntity();
-            modal.find('.modal-body input[name="action"]').val(action);
-
-            options = '';
-            $('select.categories-select').empty();
-            $(app.getCategoriesAll()).each(function (i, v) {
-                if (v.id === undefined || v.title === undefined) {
-                    return;
-                }
-                let renderOption = true;
-                if (type === 'category') {
-                    renderOption = action == 'add' || parseInt(v.id) !== parseInt(selectedId);
-                }
-                if (renderOption) {
-                    option = '<option value="' + v.id + '">' + v.title + '</option>';
-                    $('select.categories-select').append(option);
-                }
-            });
-
-            if (action == 'add') {
-                modal.find('.modal-body input[name="title"]').val("");
-                $('.form-group.parent_id').show();
-                $('select.categories-select').selectpicker(selectpickerConfig);
-            } else if (action == 'edit') {
-                if (type === 'category') {
-                    let currentParentId = null;
-                    modal.find('.modal-body input[name="title"]').val(selectedEntity.title);
-                    $('select.categories-select').selectpicker(selectpickerConfig);
-
-                    if (selectedEntity.parent_id !== undefined) {
-                        currentParentId = selectedEntity.parent_id;
-                        if (currentParentId !== null) {
-                            $('select.categories-select').selectpicker('val', currentParentId);
-                        }
-                    }
-                } else if (type === 'item') {
-                    modal.find('.modal-body input[name="title"]').val(selectedEntity.title);
-                    let currentCategories, currentCategoryIds;
-                    currentCategories = selectedEntity.categories;
-                    currentCategoryIds = [];
-                    currentCategories.forEach(function (element) {
-                        currentCategoryIds.push(element.id);
-                    });
-                    $('select.categories-select').selectpicker(selectpickerConfig);
-                    $('select.categories-select').selectpicker('val', currentCategoryIds);
-                }
-            }
-        });
+      });
     }
 
-    startButtonLoader(btn) {
-        let loadingText = '<i class="fa fa-circle-o-notch fa-spin"></i> Saving...';
-        if ($(btn).html() !== loadingText) {
-            $(btn).attr('data-original-text', $(btn).html());
-            $(btn).html(loadingText);
+    clearTemplates() {
+        //$('#smartwizardWrapper').
+    }
+
+    buildTemplate() {
+        $('.wizard').empty();
+        let q = Object.assign({}, this.question);
+        
+        let subquestions = flatten(q);
+        let list =  document.createElement("ul");
+        let html, newEl, content;
+        //form = document.createElement('form');
+        content = document.createElement('div');
+        $(content).attr('class', 'checklist-steps');
+        //$(form).attr('class', 'checklist').attr('method', 'POST');
+
+        $(subquestions).each(function(i, v) {
+            let stepId = 'step-' + (i + 1);
+            let stepTitle = 'Step ' + (i + 1);
+            let stepDescription = 'Step Description goes here';
+            
+            let template = $('#mustacheTemplate_wizard_item').html();
+            html = Mustache.to_html(template, {
+                step_id: stepId,
+                step_title: stepTitle,
+                step_description: stepDescription
+            });
+            newEl = $(html);
+            $(list).append(newEl);
+
+            template = $('#mustacheTemplate_wizard_content').html();
+            stepDescription = v.content;
+            html = Mustache.to_html(template, {
+                step_id: stepId,
+                step_content: stepDescription,
+                question_id: v.id
+            });
+            newEl = $(html);
+            $(content).append(newEl);
+            //$(form).append(newEl);
+
+        });
+        //$(content).append(form);
+        //console.log('flatten', list);
+        let wrapper =  document.createElement("div");
+        $(wrapper).attr('id', 'smartwizard');
+        $(wrapper).append(list, content);
+        $('.wizard').append(wrapper);
+        //$('#smartwizard').html($('#smartwizardWrapper').children().clone());
+    }
+
+    getSubQuestions() {
+        //console.log('CheckList.getSubQuestions');
+        $.get(this.endpoints.question + '/' + this.question.id, function (data) {
+            config.categories = data;
+            //callback();
+        });
+
+    }
+
+    checklistCompleted(data) {
+        let that = this;
+        return function (data) {
+            //console.log('Checklist.checklistCompleted', data);
+            let checklist = data.data.checklist;
+            let fields = $( ".wizard :input" ).serializeArray();
+            //let fields = [];
+            //fields['question_id'] = checklist.question.id;
+            let question = {name: 'question_id', value: checklist.question.id};
+            let job = {name: 'job_id', value: config.job.id};
+            fields.push(question);
+            fields.push(job);
+
+            console.log('fields', fields, that.endpoints);
+
+            $.ajax({
+              url: that.endpoints['jobs.answers.update'],
+              type: 'PUT',
+              data: fields,
+              success: function(data) {
+                console.log( "Data Loaded: " + data );
+              }
+            });
         }
     }
 
-    stopButtonLoader(btn) {
-        $(btn).html($(btn).data('original-text'));
+    getConfig() {
+        let that = this;
+        return {
+            selected: 0,  // Initial selected step, 0 = first step 
+            keyNavigation:true, // Enable/Disable keyboard navigation(left and right keys are used if enabled)
+            autoAdjustHeight:true, // Automatically adjust content height
+            cycleSteps: false, // Allows to cycle the navigation of steps
+            backButtonSupport: true, // Enable the back button support
+            useURLhash: false, // Enable selection of the step based on url hash
+            showStepURLhash: false,
+            lang: {  // Language variables
+                next: 'Next', 
+                previous: 'Previous'
+            },
+            toolbarSettings: {
+                toolbarPosition: 'bottom', // none, top, bottom, both
+                toolbarButtonPosition: 'right', // left, right
+                showNextButton: true, // show/hide a Next button
+                showPreviousButton: true, // show/hide a Previous button
+                toolbarExtraButtons: [
+            $('<button></button>').text('Finish')
+                          .addClass('btn btn-info')
+                          .on('click', {test: '123', checklist: that}, this.checklistCompleted()),
+            $('<button></button>').text('Cancel')
+                          .addClass('btn btn-danger')
+                          .on('click', function(){ 
+                        alert('Cancel button click');                            
+                          })
+                      ]
+            }, 
+            anchorSettings: {
+                anchorClickable: true, // Enable/Disable anchor navigation
+                enableAllAnchors: false, // Activates all anchors clickable all times
+                markDoneStep: true, // add done css
+                enableAnchorOnDoneStep: true // Enable/Disable the done steps navigation
+            },            
+            contentURL: null, // content url, Enables Ajax content loading. can set as data data-content-url on anchor
+            disabledSteps: [],    // Array Steps disabled
+            errorSteps: [],    // Highlight step with errors
+            theme: 'dots',
+            transitionEffect: 'fade', // Effect on navigation, none/slide/fade
+            transitionSpeed: '400'
+      };
     }
 }
+
+
+$(document).ready(function () {
+
+    app = new App();
+    app.init();
+
+    //$('#dropdown').dropdown({ uiLibrary: 'bootstrap4', width: 300 });
+    //$('.selectpicker').selectpicker();
+});
+
+const flatten = function(obj) {
+  const array = Array.isArray(obj) ? obj : [obj];
+  return array.reduce(function(acc, value) {
+    acc.push(value);
+    if (value.childs) {
+      acc = acc.concat(flatten(value.childs));
+      delete value.childs;
+    }
+    return acc;
+  }, []);
+}
+
+
+    //new DynamicClass('ClassOne');
+    //new DynamicClass('ClassTwo');

@@ -18,16 +18,16 @@ class CreateCategoryTable extends Migration
            $table->increments('id');
            $table->string('title');
            $table->string('alias');
-           $table->integer('parent_id')->unsigned()->nullable();
+           //$table->integer('parent_id')->unsigned()->nullable();
            $table->timestamps();
 
            $table->unique(['alias']);
        });
 
-        Schema::table('categories', function (Blueprint $table) {
+        /*Schema::table('categories', function (Blueprint $table) {
 
           $table->foreign('parent_id')->references('id')->on('categories')->onDelete('cascade');;
-        });
+        });*/
     }
 
 
