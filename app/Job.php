@@ -5,12 +5,13 @@ namespace App;
 use Illuminate\Database\Eloquent\Model;
 use App\Job;
 use App\Question;
+use App\Note;
 
 class Job extends Model
 {
     public $fillable = ['code', 'title'];
-    protected $visible = ['id', 'code', 'title', 'checks', 'question'];
-    protected $with = ['question'];
+    protected $visible = ['id', 'code', 'title', 'checks', 'question', 'notes'];
+    protected $with = ['question', 'notes'];
 
     /*public function checks()
     {
@@ -25,6 +26,11 @@ class Job extends Model
     public function question()
     {
         return $this->belongsTo('App\Question');
+    }
+
+    public function notes()
+    {
+        return $this->hasMany(Note::class);
     }
 
     public static function answers(Job $job, Question $question = null)
@@ -44,8 +50,9 @@ class Job extends Model
         $records = [];
         foreach ($answers as $key => $value) {
           $pivot = [];
+          $subQuestion = Question::find($value->pivot->question_id);
           $pivot['job_id'] = $value->pivot->job_id;
-          $pivot['question_id'] = $value->pivot->question_id;
+          $pivot['question'] = $subQuestion;
           $pivot['answer'] = $value->pivot->answer;
           $records[] = $pivot;
 

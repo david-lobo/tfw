@@ -13,10 +13,10 @@
             <div class="row toolbar">
                 @can('Manage')
                 <div class="col-3 d-flex justify-content-start">
-                    <button data-action="check" type="button" class="btn btn-primary check"><i class="fa fa-list pr-1" aria-hidden="true"></i>Checks</button>
+                    <button disabled="disabled" data-action="check" type="button" class="btn btn-primary check"><i class="fa fa-list pr-1" aria-hidden="true"></i>Checks</button>
                 </div>
-                <div class="col-9 d-flex justify-content-end">
-                @component('layouts/components/toolbar-buttons', ['buttons' => ['add', 'edit', 'delete']])
+                <div class="col-9 d-flex justify-content-end crud">
+                @component('layouts/components/toolbar-buttons', ['buttons' => ['add', 'edit', 'delete'], 'disabled' => true])
                 @endcomponent
                 </div>
 

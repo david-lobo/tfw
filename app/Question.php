@@ -3,13 +3,16 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Filters\QuestionFilter;
+use App\Sort\QuestionSort;
+use Illuminate\Database\Eloquent\Builder;
 
 class Question extends Model
 {
     public $fillable = ['content','parent_id', 'answer'];
 
     protected $visible = ['id', 'alias', 'content','parent_id', 'category', 'answer', 'childs'];
-    protected $with = ['category', 'childs'];
+    protected $with = ['category'];
 
     /**
      * Get the index name for the model.
@@ -67,4 +70,15 @@ class Question extends Model
     {
        return $this->belongsToMany('App\Job')->withPivot('answer')->withTimestamps();
     }
+
+    public function scopeFilter(Builder $builder, $request)
+    {
+        return (new QuestionFilter($request))->filter($builder);
+    }
+
+    public function scopeSort(Builder $builder, $request)
+    {
+        return (new QuestionSort($request))->sort($builder);
+    }
+
 }

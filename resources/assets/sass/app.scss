@@ -34,8 +34,26 @@
 
 .breadcrumb {
 	padding-top: 0.5rem;
+	margin-top: 1rem;
 }
 
+.checklist #questionGrid .table th, .table td {
+	padding: 0.5em;
+	vertical-align: middle;
+}
+
+.checklist #app {
+	margin-bottom: 2rem;
+}
+
+.nav-bottom {
+	display: none;
+}
+
+.checklist .nav-bottom {
+	display: block;
+	position: relative;
+}
 
 
 

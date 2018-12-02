@@ -16,13 +16,16 @@ class QuestionController extends APIBaseController
      *
      * @return \Illuminate\Http\Request
      */
-    public function index()
+    public function index(Request $request)
     {
+        $cacheKey = $this->cacheKey();
+        $input = $request->all();
+        $numRecords = $input['limit'] ?? 10;
         $minutes = 0;
-        $cacheId = 'questions';
 
-        $questions = Cache::remember($cacheId, $minutes, function () {
-            return Question::where('parent_id', '=', null)->with('childs')->get();
+        $questions = Cache::remember($cacheKey, $minutes, function () use ($numRecords, $request) {
+            //return Question::filter($request)->get();
+            return Question::filter($request)->sort($request)->where('parent_id', '=', null)->with('childs')->paginate($numRecords);
         });
         $questions = is_null($questions) ? [] : $questions;
         return response($questions->jsonSerialize(), Response::HTTP_OK);
@@ -150,7 +153,7 @@ class QuestionController extends APIBaseController
      */
     public function show($id)
     {
-        $question = Question::findOrFail($id);
+        $question = Question::with('childs')->findOrFail($id);
         //$data = $question->toArray();
         $question = is_null($question) ? [] : $question;
 

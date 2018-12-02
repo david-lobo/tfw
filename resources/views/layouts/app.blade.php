@@ -19,7 +19,7 @@
         </script>
         <script src="https://use.fontawesome.com/9712be8772.js"></script>
     </head>
-    <body>
+    <body class="{{ str_replace('.', '-', $data['route'] ?? '') }}">
         <div id="main">
             <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
                 <div class="container">
@@ -31,6 +31,9 @@
                         <ul class="navbar-nav mr-auto">
                             <li class="nav-item active">
                                 <a class="nav-link" href="/">Home <span class="sr-only">(current)</span></a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="/jobs">Jobs <span class="sr-only"></span></a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link" href="/questions">Questions <span class="sr-only"></span></a>
@@ -131,6 +134,7 @@
                 </div>
             </div>
             @endif
+            @if (count($errors) > 0)
             <div class="container">
                 <div class="row justify-content-center mt-3">
                     <div class="col-md-8 col-md-offset-2">
@@ -138,6 +142,7 @@
                     </div>
                 </div>
             </div>
+            @endif
             <div class="container">
 
                 @yield('content')
@@ -148,6 +153,13 @@
                     <button id="testBuild">Build</button>
                 </div>
             </div>
+
+            <nav class="nav-bottom navbar fixed-bottom navbar-light bg-light text-center">
+                <div class="checklist-actions my-3">
+                </div>
+            </nav>
+
+
         </div>
         <script>
         let config;

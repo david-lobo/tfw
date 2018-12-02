@@ -27,6 +27,12 @@ class DepartmentsTableSeeder extends Seeder
                 'alias' => str_slug('Repro'),
                 'created_at' => \Carbon\Carbon::now()->toDateTimeString(),
                 'updated_at' => \Carbon\Carbon::now()->toDateTimeString()
+            ),
+            array(
+                'title'=> 'Sales',
+                'alias' => str_slug('Sales'),
+                'created_at' => \Carbon\Carbon::now()->toDateTimeString(),
+                'updated_at' => \Carbon\Carbon::now()->toDateTimeString()
             )
         ));
     }

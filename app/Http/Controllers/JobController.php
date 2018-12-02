@@ -28,7 +28,8 @@ class JobController extends Controller
         $data['routes'] = [
             'department' => route('departments.index', []),
             'category' => route('categories.index', []),
-            'job' => route('jobs.index', [])
+            'job' => route('jobs.index', []),
+            'checklist' => route('checklist', ['id' => 'ID']),
         ];
         //$question = Question::findOrFail($id);
         //$data['question'] = $question;

@@ -1,6 +1,12 @@
 @extends('layouts.pdf')
 
 @section('content')
+@foreach ($data['checklist']['checks'] as $department => $checklist)
+@if ($loop->last)
+<div class="pdf-page">
+@else
+<div class="pdf-page pdf-new-page">
+@endif
 <table class="layout">
   <tbody>
       <tr>
@@ -12,7 +18,7 @@
                   Job No
                 </td>
                 <td width="50%">
-                  .........
+                  {{ $data['job']['code'] }}
                 </td>
               </tr>
               <tr>
@@ -28,7 +34,7 @@
                   Title
                 </td>
                 <td>
-                  .........
+                  {{ $data['job']['title'] }}
                 </td>
               </tr>
               <tr>
@@ -61,27 +67,49 @@
 <table class="layout checklist">
   <thead>
     <tr>
-      <th class="department" align="left" colspan="2">Department: Production</th>
+      <th class="department" align="left" colspan="2">Department: {{ $department }}</th>
     </tr>
   </thead>
   <tbody>
 
+      @foreach ($checklist as $check)
       <tr>
-        <td>Confirm cutter laydown with finishing manager and brief repro</td>
+        <td>{{ $check['content'] }}</td>
         <td><td><div class="checkbox"> </div></td></td>
       </tr>
-
-      <tr>
-        <td>Cut out epson, check over for potential issues and give to repro to double check</td>
-        <td><td><div class="checkbox"> </div></td></td>
-      </tr>
-
-      <tr>
-        <td>Ensure job goes to finisher with prototype, PO, Epson with cutter and previous (if applicable)</td>
-        <td><td><div class="checkbox"> </div></td></td>
-      </tr>
+      @endforeach
 
   </tbody>
 </table>
 
+<hr>
+
+<table class="notes">
+  <thead>
+    <tr>
+      <th class="notes" align="left">Notes: </th>
+    </tr>
+  </thead>
+  <tbody>
+
+  <tr>
+    <td>
+      <?php //var_dump($checklist[0]['department']['id']); ?>
+      <?php //var_dump($data['checklist']['notes'][$checklist[0]['department']['id']]); ?>
+      @if (!empty($data['checklist']['notes']))
+      @if (!empty($checklist[0]))
+      @isset($data['checklist']['notes'][$checklist[0]['department']['id']]['content'])
+      {{ $data['checklist']['notes'][$checklist[0]['department']['id']]['content'] }}
+      @endisset
+      @endif
+      @endif
+    </td>
+  </tr>
+
+  </tbody>
+</table>
+
+
+</div>
+@endforeach
 @endsection

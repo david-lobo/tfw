@@ -17,7 +17,7 @@ class CheckController extends APIBaseController
      *
      * @return \Illuminate\Http\Request
      */
-    public function index($id = null)
+    public function index(Request $request, $id)
     {
         $minutes = 0;
         $cacheId = 'checks';
@@ -26,9 +26,9 @@ class CheckController extends APIBaseController
             $cacheId .= '_$id';
         }
 
-        $checks = Cache::remember($cacheId, $minutes, function () use ($id) {
+        $checks = Cache::remember($cacheId, $minutes, function () use ($id, $request) {
             if (!is_null($id)) {
-                return Check::where('question_id', '=', $id)->get();
+                return Check::filter($request)->where('question_id', '=', $id)->orderBy('priority', 'asc')->get();
             }
 
             return Check::where('question_id', '!=', null)->get();
@@ -161,4 +161,50 @@ class CheckController extends APIBaseController
 
         return $this->sendResponse([], 'Check deleted successfully.');
     }
+
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function reorder(Request $request)
+    {
+        $input = $request->all();
+        //var_dump($input);die();
+
+        $validator = \Validator::make($input, [
+            //"question_id" => 'Int|required|exists:questions,id',
+            "checks"    => "required|array|min:2",
+            "checks.*"  => "Int|required|exists:checks,id",
+            //"questions.*"  => "boolean|required",
+            //"questions_id"    => "required|array|min:" . count($questions),
+            //"questions_id.*"  => "Int|required|exists:questions,id",
+            //"questions_value"    => "required|array|min:" . count($questions),
+            //"questions_value.*"  => "boolean|required",
+        ]);
+
+        if ($validator->fails()) {
+            return $this->sendError('Validation Error', $validator->errors());
+        }
+        $checks = $input['checks'];
+        $inputChecks = Check::find(array_keys($checks));
+
+        $inputChecks->each(function ($item, $key) use ($checks) {
+           $item->priority = $checks[$item->id];
+           $item->save();
+        });
+
+        //var_dump($inputChecks->toArray());
+
+        /*if (!is_null($question->parent_id)) {
+            return $this->sendError('Validation Error', [
+                "Must be a parent question, subquestion selected"
+            ]);
+        }*/
+
+        return $this->sendResponse($inputChecks->toArray(), 'Check updated successfully.');
+    }
+
+
 }

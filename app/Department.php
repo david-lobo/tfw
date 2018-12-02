@@ -4,6 +4,7 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 use App\Check;
+use App\Note;
 
 class Department extends Model
 {
@@ -16,13 +17,8 @@ class Department extends Model
         return $this->hasMany(Check::class);
     }
 
-
-    /**
-     * Get the index name for the model.
-     *
-     * @return string
-    */
-    /*public function childs() {
-        return $this->hasMany('App\Category','parent_id','id') ;
-    }*/
+    public function notes()
+    {
+        return $this->hasMany(Notes::class);
+    }
 }

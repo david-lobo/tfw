@@ -141,4 +141,31 @@ class SubQuestionController extends APIBaseController
 
         return $this->sendResponse([], 'Question deleted successfully.');
     }
+
+    /**
+     * list resource
+     *
+     * @return \Illuminate\Http\Request
+     */
+    public function tree($id)
+    {
+        $minutes = 0;
+        $cacheId = 'tree_' . $id;
+
+        $questions = Cache::remember($cacheId, $minutes, function () use ($id) {
+            //$question = Question::where('id', '=', $id)->with('childs')->get();
+            $q = Question::findOrFail($id);
+            $tree = Question::subquestions($q);
+
+            $result = $q->toArray();
+            //unset($result['childs']);
+            //$result['childs'] = $tree;
+
+            return $result;
+        });
+
+
+        $questions = is_null($questions) ? [] : [$questions];
+        return response($questions, Response::HTTP_OK);
+    }
 }

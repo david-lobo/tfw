@@ -3,6 +3,7 @@
 use Illuminate\Database\Seeder;
 use App\Question;
 use App\Category;
+use Faker\Factory as Faker;
 
 class QuestionsTableSeeder extends Seeder
 {
@@ -52,43 +53,19 @@ class QuestionsTableSeeder extends Seeder
             )
         ));
 
-         /*
-        //insert some Food categories
-        $food = Category::where('alias', '=' ,'food')->firstOrFail();
 
-        DB::table('categories')->insert(array(
-             array('title'=> 'Dairy', 'alias' => str_slug('Dairy'), 'parent_id' => $food->id),
-             array('title'=> 'Meat', 'alias' => str_slug('Meat'), 'parent_id' => $food->id),
-             array('title'=> 'Fish', 'alias' => str_slug('Fish'), 'parent_id' => $food->id),
-             array('title'=> 'Confectionary', 'alias' => str_slug('Confectionary'), 'parent_id' => $food->id),
-             array('title'=> 'Frozen', 'alias' => str_slug('Frozen'), 'parent_id' => $food->id),
-        ));
+        $faker = Faker::create();
+        foreach (range(1,20) as $index) {
+            $title = $faker->sentence($nbWords = 6, $variableNbWords = true);
+            DB::table('questions')->insert([
+                'content' => $title,
+                'alias' => str_slug($title),
+                'category_id' => $category->id,
+                'created_at' => \Carbon\Carbon::now()->toDateTimeString(),
+                'updated_at' => \Carbon\Carbon::now()->toDateTimeString()
+            ]);
+    }
 
-        //insert some Confectionary categories
-        $confectionary = Category::where('alias', '=' ,'confectionary')->firstOrFail();
 
-        DB::table('categories')->insert(array(
-             array('title'=> 'Chocolate', 'alias' => str_slug('Chocolate'), 'parent_id' => $confectionary->id),
-             array('title'=> 'Lolly', 'alias' => str_slug('Lolly'), 'parent_id' => $confectionary->id)
-        ));
-
-        //insert some Dairy categories
-        $dairy = Category::where('alias', '=' ,'dairy')->firstOrFail();
-
-        DB::table('categories')->insert(array(
-             array('title'=> 'Milk', 'alias' => str_slug('Milk'), 'parent_id' => $dairy->id),
-             array('title'=> 'Butter', 'alias' => str_slug('Butter'), 'parent_id' => $dairy->id),
-             array('title'=> 'Cheese', 'alias' => str_slug('Cheese'), 'parent_id' => $dairy->id),
-             array('title'=> 'Cream', 'alias' => str_slug('Cream'), 'parent_id' => $dairy->id),
-        ));
-
-        //insert some Electronics categories
-        $music = Category::where('alias', '=' ,'Music')->firstOrFail();
-
-        DB::table('categories')->insert(array(
-             array('title'=> 'CD', 'alias' => str_slug('CD'), 'parent_id' => $music->id),
-             array('title'=> 'Vinyl', 'alias' => str_slug('Vinyl'), 'parent_id' => $music->id),
-             array('title'=> 'Digital', 'alias' => str_slug('Digital'), 'parent_id' => $music->id)
-        ));*/
     }
 }

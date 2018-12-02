@@ -41,6 +41,7 @@ class HomeController extends Controller
 
         die();*/
         $data = [];
+        $data['route'] = \Request::route()->getName();
         return view('home.index')->with('data', $data);
     }
 

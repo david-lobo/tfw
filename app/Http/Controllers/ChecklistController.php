@@ -8,18 +8,19 @@ use Illuminate\Routing\Router;
 use PDF;
 use App\Job;
 use  Illuminate\Support\Facades\App;
-
+use App\Services\ChecklistService;
 
 class ChecklistController extends Controller
 {
+    protected $checklistService;
     /**
      * Create a new controller instance.
      *
      * @return void
      */
-    public function __construct()
+    public function __construct(ChecklistService $checklistService)
     {
-        //
+        $this->checklistService = $checklistService;
     }
 
     /**
@@ -50,11 +51,18 @@ die();*/
         $data = [];
         $data['route'] = \Request::route()->getName();
         $data['routes'] = [
+            'notes.index' => route('notes.index', []),
+            'notes.update' => route('notes.update', ['id' => 'ID']),
             'department' => route('departments.index', []),
             'question' => route('questions.index', []),
-            'jobs.answers.update' => route('jobs.answers.update', ['id' => $id])
+            'jobs.answers.update' => route('jobs.answers.update', ['id' => $id]),
+            'jobs.checklist' => route('jobs.checklist', ['id' => $id]),
+            'jobs.show' => route('jobs.show', ['id' => 'ID']),
+            'checklist.view' => route('checklist.view', ['id' => $job->id]),
+            'checklist.export' => route('checklist.export', ['id' => $job->id])
         ];
         $data['job'] = $job->toArray();
+        $data['checklist'] = $this->checklistService->getChecklist($job);
 
         //dd($data);die();
         return view('checklist.index')->with('data', $data);
@@ -63,13 +71,22 @@ die();*/
     public function view($id)
     {
         $data = $this->getData();
+        $job = Job::findOrFail($id);
 
+        $data['job'] = $job->toArray();
+        $data['checklist'] = $this->checklistService->getChecklist($job);
+
+        //var_dump($data['checklist']['checks']);die();
+        //var_dump($data);die();
         return view('checklist.view')->with('data', $data);
     }
 
     public function export($id)
     {
         $data = $this->getData();
+        $job = Job::findOrFail($id);
+        $data['job'] = $job->toArray();
+        $data['checklist'] = $this->checklistService->getChecklist($job);
                 // Send data to the view using loadView function of PDF facade
         $pdf = PDF::loadView('checklist.view', ['data' => $data]);
         // If you want to store the generated pdf to the server then you can use the store function

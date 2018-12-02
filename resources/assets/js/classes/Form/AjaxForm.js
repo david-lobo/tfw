@@ -131,8 +131,13 @@ export class AjaxForm {
 
         url = that.endpoint;
         if (method !== 'POST') {
-            selectedId = record.id;
-            url +=  '/' + selectedId
+            console.log('URL', URL, url.includes("ID", 0));
+            if (url.includes("ID", 0)) {
+                url = url.replace("ID", record.id);
+            } else {
+                selectedId = record.id;
+                url +=  '/' + selectedId
+            }
         }
            
            console.log('saveCallback', method, url, record);

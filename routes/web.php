@@ -27,10 +27,10 @@ Route::group(['middleware' => ['auth', 'clearance']], function() {
 
     Route::get('/',['uses'=>'HomeController@index'])->name('home');
     //Route::get('/checklist',['uses'=>'ChecklistController@index'])->name('checklist');
-    Route::get('/checklist/{id}',['uses'=>'ChecklistController@index'])->name('checklist');
-    Route::get('/checklist/view/{id}',['uses'=>'ChecklistController@view'])->name('checklist_view');
+    Route::get('/jobs/{id}/checklist',['uses'=>'ChecklistController@index'])->name('checklist');
+    Route::get('/jobs/{id}/checklist/view',['uses'=>'ChecklistController@view'])->name('checklist.view');
 
-        Route::get('/checklist/export/{id}',['uses'=>'ChecklistController@export'])->name('checklist_export');
+        Route::get('/jobs/{id}/checklist/export',['uses'=>'ChecklistController@export'])->name('checklist.export');
 
     Route::get('/questions',['uses'=>'QuestionController@index'])->name('questions');
 
@@ -60,19 +60,31 @@ Route::group(['middleware' => ['auth', 'clearance']], function() {
     Route::resource('d5-api/subquestions', 'API\SubQuestionController', [
     ]);
 
+    Route::put('d5-api/checks/reorder', ['uses'=>'API\CheckController@reorder'])->name('checks.reorder');
+
     Route::resource('d5-api/checks', 'API\CheckController', [
       'except' => ['show']
+    ]);
+
+    Route::resource('d5-api/notes', 'API\NoteController', [
+      'except' => []
     ]);
 
     Route::resource('d5-api/jobs', 'API\JobController', [
       'except' => []
     ]);
 
-    Route::get('d5-api/checks/{id}',['uses'=>'API\CheckController@index']);
+
+    Route::get('d5-api/checks/{id}', ['uses'=>'API\CheckController@index'])->name('checks.index');
+
+
+    Route::get('d5-api/subquestions/{id}/tree',['uses'=>'API\SubQuestionController@tree'])->name('subquestions.tree');
 
     Route::put('d5-api/jobs/{id}/answers',['uses'=>'API\JobController@updateAnswers'])->name('jobs.answers.update');
 
     Route::get('d5-api/jobs/{id}/answers',['uses'=>'API\JobController@listAnswers'])->name('jobs.answers.list');
+
+    Route::get('d5-api/jobs/{id}/checklist',['uses'=>'API\JobController@checklist'])->name('jobs.checklist');
 
     Route::get('d5-api/categories/all',['uses'=>'API\CategoryController@all']);
 

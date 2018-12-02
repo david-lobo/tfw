@@ -28,7 +28,8 @@ class SubQuestionController extends Controller
         $data = [];
         $data['routes'] = [
             'checks' => route('checks', []),
-            'subquestions' => route('subquestions.index', []),
+            //'subquestions' => route('subquestions', []),
+            'subquestions' => route('subquestions.tree', ['id' => 'ID']),
             'question' => route('questions.index', [])
         ];
 

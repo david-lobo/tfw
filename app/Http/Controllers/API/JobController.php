@@ -8,9 +8,14 @@ use Illuminate\Support\Facades\Cache;
 use App\Http\Requests;
 use App\Job;
 use App\Question;
+use App\Services\ChecklistService;
 
 class JobController extends APIBaseController
 {
+    public function __construct(ChecklistService $checklistService)
+    {
+        $this->checklistService = $checklistService;
+    }
     /**
      * list resource
      *
@@ -232,5 +237,14 @@ class JobController extends APIBaseController
         $result['answers'] = $answers;
 
         return $this->sendResponse($result, 'Job created successfully.');
+    }
+
+    public function checklist($id)
+    {
+        $job = Job::findOrFail($id);
+        $result = $this->checklistService->getChecks($job);
+        //$result['answers'] = $answers;
+
+        return response($result, Response::HTTP_OK);
     }
 }

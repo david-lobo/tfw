@@ -22,13 +22,18 @@ class CheckController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index($id = null)
+    public function index($id)
     {
+        //this.endpoints['jobs.checklist'].replace('ID', this.job.id)
         $data = [];
         $data['routes'] = [
-            'check' => route('checks.index', []),
+            'check' => route('checks.index', ['id' => 'ID']),
+            'check.add' => route('checks.store', []),
+            'check.update' => route('checks.update', ['id' => 'ID']),
+            'check.delete' => route('checks.destroy', ['id' => 'ID']),
             'department' => route('departments.index', []),
-            'question' => route('questions.index', [])
+            'question' => route('questions.index', []),
+            'check.reorder' => route('checks.reorder'),
         ];
         $data['route'] = \Request::route()->getName();
         $data['test'] = true;

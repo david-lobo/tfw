@@ -17,6 +17,7 @@ class CreateChecksTable extends Migration
             $table->increments('id');
             $table->text('content');
             $table->string('alias');
+            $table->integer('priority')->unsigned()->default(1);
             $table->integer('question_id')->unsigned();
             $table->integer('department_id')->unsigned();
             $table->unsignedTinyInteger('answer')->default(0);

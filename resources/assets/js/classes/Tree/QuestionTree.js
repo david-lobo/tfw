@@ -5,6 +5,12 @@ export class QuestionTree extends TreeUI {
         super(el, entity, url);
     }
 
+    init() {
+        super.init();
+
+        QuestionTree.showToolbar(null);
+    }
+
     bindButtons() {
         console.log('QuestionTree.bindButtons 1.1');
 
@@ -79,4 +85,55 @@ export class QuestionTree extends TreeUI {
     reloadQuery() {
         return super.reloadQuery();
     }
+
+    selectCallback(entity) {
+        return function (e, node, id) {
+            let treeUI, tree;
+            treeUI = config.page.getTrees()[entity];
+            console.log(treeUI);
+            tree = treeUI.getTree();
+            treeUI.setSelectedId(id);
+
+            if (treeUI.getSelectedId() !== 0) {
+                treeUI.setSelectedEntity(tree.getDataById(treeUI.getSelectedId()));
+
+                console.log('selectCallback', treeUI.getSelectedEntity());
+                QuestionTree.showToolbar(treeUI.getSelectedEntity());
+                //$('.' + entity + ' .btn.edit, .' + entity + ' .btn.delete').prop('disabled', false);
+                /*if (entity == 'category') {
+                    let itemTreeUI = config.page.getTrees()['item'];
+                    itemTreeUI.reload();
+                }*/
+            }
+        }
+    }
+
+    unselectCallback(entity) {
+        return function (e, node, id) {
+            let treeUI, tree;
+            treeUI = config.page.getTrees()[entity];
+            tree = treeUI.getTree();
+            treeUI.setSelectedId(0);
+            treeUI.setSelectedEntity(null);
+
+            //$('.' + entity + '.btn.edit, .' + entity + ' .btn.delete').prop('disabled', true);
+
+            QuestionTree.showToolbar(null);
+        }
+    }
+
+    static showToolbar(entity) {
+        if (entity === null) {
+            $('.toolbar .btn').prop('disabled', true);
+            return false;
+        }
+
+        if (entity.parent_id == null) {
+            $('.toolbar .btn').prop('disabled', true);
+            $('.toolbar .check.btn').prop('disabled', false);
+        } else {
+            $('.toolbar .btn').prop('disabled', false);
+        }
+    }
+
 }

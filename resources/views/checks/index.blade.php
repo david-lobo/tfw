@@ -10,8 +10,10 @@
             <h3 class="my-3">Checks</h3>
             <div class="row">
                 @can('Manage')
-                <div class="col-9">
+                <div class="col-9 grid-filters">
                     <form class="form-inline">
+                         <select id="departmentDropdown" width="200"></select>
+
                         <!--<input id="txtName" type="text" placeholder="Name..." class="form-control mb-2 mr-sm-2 mb-sm-0" />
                             <input id="txtPlaceOfBirth" type="text" placeholder="Place Of Birth..." class="form-control mb-2 mr-sm-2 mb-sm-0" />
 
