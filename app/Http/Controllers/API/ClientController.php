@@ -6,10 +6,10 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Cache;
 use App\Http\Requests;
-use App\Department;
+use App\Client;
 use App\Category;
 
-class DepartmentController extends APIBaseController
+class ClientController extends APIBaseController
 {
     /**
      * list resource
@@ -20,7 +20,7 @@ class DepartmentController extends APIBaseController
     {
         $fn = function () use ($request) {
             $numRecords = $request->input('limit', 10);
-            return Department::paginate($numRecords);
+            return Client::paginate($numRecords);
         };
         return parent::list($request, $fn);
     }
@@ -35,22 +35,22 @@ class DepartmentController extends APIBaseController
     {
         $input = $request->all();
         $validator = \Validator::make($input, [
-            'title' => 'required|String|unique:departments,title'
+            'title' => 'required|String|unique:clients,title'
         ]);
 
         if ($validator->fails()) {
             return $this->sendError('Validation Error', $validator->errors());
         }
 
-        $department = new Department;
-        $department->title = $input['title'];
-        $department->alias = str_slug($input['title']);
+        $client = new Client;
+        $client->title = $input['title'];
+        $client->alias = str_slug($input['title']);
 
-        $department->save();
+        $client->save();
 
         Cache::flush();
 
-        return $this->sendResponse($department->toArray(), 'Post created successfully.');
+        return $this->sendResponse($client->toArray(), 'Post created successfully.');
     }
 
     /**
@@ -63,24 +63,24 @@ class DepartmentController extends APIBaseController
     public function update(Request $request, $id)
     {
         $input = $request->all();
-        $department = Department::findOrFail($id);
+        $client = Client::findOrFail($id);
 
         $validator = \Validator::make($input, [
-            'title' => 'required|String|unique:departments,title,' . $id
+            'title' => 'required|String|unique:clients,title,' . $id
         ]);
 
         if ($validator->fails()) {
             return $this->sendError('Validation Error', $validator->errors());
         }
 
-        $department->title = $input['title'];
-        $department->alias = str_slug($input['title']);
+        $client->title = $input['title'];
+        $client->alias = str_slug($input['title']);
 
-        $department->save();
+        $client->save();
 
         Cache::flush();
 
-        return $this->sendResponse($department->toArray(), 'Department updated successfully.');
+        return $this->sendResponse($client->toArray(), 'Client updated successfully.');
     }
 
     /**
@@ -91,11 +91,11 @@ class DepartmentController extends APIBaseController
      */
     public function destroy($id)
     {
-        $department = Department::findOrFail($id);
-        $department->delete();
+        $client = Client::findOrFail($id);
+        $client->delete();
 
         Cache::flush();
 
-        return $this->sendResponse([], 'Department deleted successfully.');
+        return $this->sendResponse([], 'Client deleted successfully.');
     }
 }

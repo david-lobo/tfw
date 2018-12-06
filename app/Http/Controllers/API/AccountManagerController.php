@@ -6,10 +6,10 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Cache;
 use App\Http\Requests;
-use App\Department;
+use App\AccountManager;
 use App\Category;
 
-class DepartmentController extends APIBaseController
+class AccountManagerController extends APIBaseController
 {
     /**
      * list resource
@@ -20,7 +20,7 @@ class DepartmentController extends APIBaseController
     {
         $fn = function () use ($request) {
             $numRecords = $request->input('limit', 10);
-            return Department::paginate($numRecords);
+            return AccountManager::paginate($numRecords);
         };
         return parent::list($request, $fn);
     }
@@ -35,22 +35,22 @@ class DepartmentController extends APIBaseController
     {
         $input = $request->all();
         $validator = \Validator::make($input, [
-            'title' => 'required|String|unique:departments,title'
+            'title' => 'required|String|unique:account_managers,title'
         ]);
 
         if ($validator->fails()) {
             return $this->sendError('Validation Error', $validator->errors());
         }
 
-        $department = new Department;
-        $department->title = $input['title'];
-        $department->alias = str_slug($input['title']);
+        $accountmanager = new AccountManager;
+        $accountmanager->title = $input['title'];
+        $accountmanager->alias = str_slug($input['title']);
 
-        $department->save();
+        $accountmanager->save();
 
         Cache::flush();
 
-        return $this->sendResponse($department->toArray(), 'Post created successfully.');
+        return $this->sendResponse($accountmanager->toArray(), 'Post created successfully.');
     }
 
     /**
@@ -63,24 +63,24 @@ class DepartmentController extends APIBaseController
     public function update(Request $request, $id)
     {
         $input = $request->all();
-        $department = Department::findOrFail($id);
+        $accountmanager = AccountManager::findOrFail($id);
 
         $validator = \Validator::make($input, [
-            'title' => 'required|String|unique:departments,title,' . $id
+            'title' => 'required|String|unique:account_managers,title,' . $id
         ]);
 
         if ($validator->fails()) {
             return $this->sendError('Validation Error', $validator->errors());
         }
 
-        $department->title = $input['title'];
-        $department->alias = str_slug($input['title']);
+        $accountmanager->title = $input['title'];
+        $accountmanager->alias = str_slug($input['title']);
 
-        $department->save();
+        $accountmanager->save();
 
         Cache::flush();
 
-        return $this->sendResponse($department->toArray(), 'Department updated successfully.');
+        return $this->sendResponse($accountmanager->toArray(), 'AccountManager updated successfully.');
     }
 
     /**
@@ -91,11 +91,11 @@ class DepartmentController extends APIBaseController
      */
     public function destroy($id)
     {
-        $department = Department::findOrFail($id);
-        $department->delete();
+        $accountmanager = AccountManager::findOrFail($id);
+        $accountmanager->delete();
 
         Cache::flush();
 
-        return $this->sendResponse([], 'Department deleted successfully.');
+        return $this->sendResponse([], 'AccountManager deleted successfully.');
     }
 }

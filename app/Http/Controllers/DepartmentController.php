@@ -5,18 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Department;
 
-class DepartmentController extends Controller
+class DepartmentController extends SiteBaseController
 {
-    /**
-     * Create a new controller instance.
-     *
-     * @return void
-     */
-    public function __construct()
-    {
-        //
-    }
-
     /**
      * Show the application dashboard.
      *
@@ -24,7 +14,7 @@ class DepartmentController extends Controller
      */
     public function index()
     {
-        $data = [];
+        $data = $this->data;
 
         $data['routes'] = [
             'department' => route('departments.index', [])

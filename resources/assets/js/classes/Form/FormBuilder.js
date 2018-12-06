@@ -4,11 +4,12 @@ export class FormBuilder {
         this.fields = fields;
         this.form;
         this.footer;
+        this.events;
     }
 
     build() {
         console.log('FormBuilder.build', this.selector, this.fields, this.form);
-
+        this.events = [];
         this.form = document.createElement("form");
         
         $(this.form).attr('data-entity', '').attr('data-method', '');
@@ -46,13 +47,68 @@ export class FormBuilder {
                     break;
                 case "select":
                     input = document.createElement('select');
-                    className += ' ' + v.name + '-select';
+                    className += ' ' + v.name + '-select selectpicker';
+                    let form = that.form;
+                    let inputClassName = v.name + '-select';
 
-                    $(v.options).each(function(i, v) {
-                        let option = document.createElement('option');
-                        $(option).attr('value', v.value).html(v.label);
-                        $(input).append(option);
-                    });
+                    let createOptions = function(options, input) {
+                        console.log('className' + inputClassName);
+                        $(form).find('select.' + inputClassName).attr('test123', 'test');
+                        let selectElem = $(form).find('select.' + inputClassName);
+                        $(options).each(function(i, v) {
+                            let option = document.createElement('option');
+                            $(option).attr('value', v.value).html(v.label);
+                            $(selectElem).append(option);
+                        });
+
+
+                        //$(selectElem).attr('data-container', 'select.' + inputClassName);
+                        $(selectElem).attr('data-live-search', false);
+                        $(selectElem).attr('data-size', 3);
+                        $(selectElem).attr('data-width', '100%');
+                        $(selectElem).attr('data-dropup-auto', false);
+                        $(selectElem).attr('data-virtual-scroll', 3);
+                        $(selectElem).attr('data-title', 'Choose one of the following...');
+            
+                        //$('select').selectpicker('destroy');
+                        $(selectElem).selectpicker('refresh');
+                    }
+
+                    if (v.options instanceof Function) {
+                        let c  = v.options;
+                        
+                        let success = function() {
+                            console.log('success callback', v.data_source);
+                            if (config.hasOwnProperty(v.data_source)) {
+                                if (config[v.data_source]) {
+                                    
+                                    let options = FormBuilder.entityToOptions(config[v.data_source]);
+                                    console.log('Data is', options);
+                                    createOptions(options, input, form);
+                                    config.page.forms.update.populateFieldsFromAttr();
+                                    console.log('SUCCESS', config.page.forms.update);
+                                }
+                            } 
+                        }
+
+                        let e = $(that.selector);
+                        console.log('FormBuilder.selector', that.form);
+                        let fn = function( event ) {
+                            c(success);
+                            //console.log('ShowCallbackEVENT');
+                        };
+
+                        $(that.form).on( "modal:show", fn);
+                    } else {
+                        $(v.options).each(function(i, v) {
+                            let option = document.createElement('option');
+                            $(option).attr('value', v.value).html(v.label);
+                            $(input).append(option);
+                        });
+                    }
+
+
+
                     break;
                 case "input":
                     input = document.createElement('input');
@@ -111,5 +167,30 @@ export class FormBuilder {
         $(body).append(this.form, confirm);
         $(wrapper).append(body, this.footer);
         $("body").append(wrapper); 
+
+        //this.attachEvents();
     }
+
+    attachEvents() {
+        let that = this;
+        $(this.events).each(function(i, v) {
+            //$(that.form).on( "modal:show",
+            console.log('attachEvents', that.selector);
+            $(this.selector).on( "modal:show", v);
+        })
+    }
+
+    static entityToOptions(categories) {
+        console.log('entityToOptions', categories);
+        let options = [];
+        $(categories).each(function(i, v) {
+            let option = {
+                label: v.title,
+                value: v.id
+            }
+            options.push(option);
+        });
+        return options;
+    }
+
 }

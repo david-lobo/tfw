@@ -4,6 +4,7 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 use App\Question;
+use App\Job;
 
 class Category extends Model
 {
@@ -12,12 +13,17 @@ class Category extends Model
     //protected $with = ['childs', 'items'];
 
     public $fillable = ['title'];
-    protected $visible = ['id', 'alias', 'title', 'questions'];
+    protected $visible = ['id', 'alias', 'title', 'questions', 'jobs'];
     //protected $with = ['childs', 'items'];
 
     public function questions()
     {
         return $this->hasMany(Question::class);
+    }
+
+    public function jobs()
+    {
+        return $this->hasMany(Job::class);
     }
 
 

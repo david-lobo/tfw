@@ -43,26 +43,33 @@ class App {
 
     init() {
         let page;
-        if (config.route === 'questions') {
-            page = new QuestionPage(config.routes);
-        } else if (config.route === 'checks' || config.route === 'checks_id') {
-            page = new CheckPage(config.routes);  
-        } else if (config.route === 'subquestions') {
-            page = new SubQuestionPage(config.routes);  
-        } else if (config.route === 'departments') {
-            page = new DepartmentPage(config.routes);  
-        } else if (config.route === 'categories') {
-            page = new CategoryPage(config.routes);  
-        } else if (config.route === 'checklist') {
-            page = new ChecklistPage(config.routes, config.job);  
-        } else if (config.route === 'jobs') {
-            page = new JobPage(config.routes);  
-        }
+        if (config.hasOwnProperty('route')) {
+            if (config.route === 'questions') {
+                page = new QuestionPage(config.routes);
+            } else if (config.route === 'checks' || config.route === 'checks_id') {
+                page = new CheckPage(config.routes);  
+            } else if (config.route === 'subquestions') {
+                page = new SubQuestionPage(config.routes);  
+            } else if (config.route === 'departments') {
+                page = new DepartmentPage(config.routes);  
+            } else if (config.route === 'categories') {
+                page = new CategoryPage(config.routes);  
+            } else if (config.route === 'checklist') {
+                page = new ChecklistPage(config.routes, config.job);  
+            } else if (config.route === 'jobs') {
+                page = new JobPage(config.routes);  
+            } else if (config.route === 'clients') {
+                page = new ClientPage(config.routes);  
+            } else if (config.route === 'accountmanagers') {
+                page = new AccountManagerPage(config.routes);  
+            }
 
-        config.page = page;
+            config.page = page;
 
-        if (undefined !== page) {
-            config.page.init();
+            if (undefined !== page) {
+                config.page.init();
+            }
+
         }
         
         console.log('App Config', config);
@@ -187,6 +194,13 @@ class AdminPage {
     loadAllDepartments(callback) {
         $.get(config.routes.department, function (data) {
             config.departments = data;
+            callback();
+        });
+    }
+
+    loadAllAccountManagers(callback) {
+        $.get(config.routes.accountmanagers, function (data) {
+            config.accountmanagers = data;
             callback();
         });
     }
@@ -350,7 +364,7 @@ class ListPage extends AdminPage {
         //let deleteForm = new classes[x];
         let grid = new DynamicGrid(gridName);
         
-        //console.log('initGrids', gridName, this.endpoints[this.entity], this.entity);
+        console.log('initGrids', gridName, this.endpoints[this.entity], this.entity);
         grid.constructor.apply(grid, [$('#' + this.entity + 'Grid'), this.entity, this.endpoints[this.entity]])
     
         
@@ -438,6 +452,34 @@ class CheckPage extends ListPage {
 class DepartmentPage extends ListPage {
     constructor(endpoints) {
         super('department', endpoints);
+    }
+
+    init() {
+        super.init();
+    }
+
+    initUIList() {
+        this.initGrids();
+    }
+}
+
+class ClientPage extends ListPage {
+    constructor(endpoints) {
+        super('client', endpoints);
+    }
+
+    init() {
+        super.init();
+    }
+
+    initUIList() {
+        this.initGrids();
+    }
+}
+
+class AccountManagerPage extends ListPage {
+    constructor(endpoints) {
+        super('accountManager', endpoints);
     }
 
     init() {
@@ -640,9 +682,13 @@ class GridUI {
         
         this.grid = this.el.grid(gridConfig);
 
+        console.log('grid', this.el);
+
+        //console.log('gridConfig', gridConfig);
+
         if (undefined !== config.page.forms && undefined !== config.page.forms['add']) {
             let addForm = config.page.forms['add'];
-            let fn = addForm.showModal();
+            let fn = addForm.showModal()
             let data = {};
 
             if (undefined !== config.question) {
@@ -923,10 +969,81 @@ class DepartmentGrid extends GridUI {
                     { title: '', field: 'Edit', width: 42, type: 'icon', icon: 'fa fa-pencil', tooltip: 'Edit', events: { 'click': updateForm.showModal() } },
                     { title: '', field: 'Delete', width: 42, type: 'icon', icon: 'fa fa-remove', tooltip: 'Delete', events: { 'click': deleteForm.showModal() } }
                 ],
-            //pager: { limit: 5 }
+            pager: { limit: 10, sizes: [2, 5, 10, 20] },
+            paramNames: {limit: 'limit', page: 'page'},
+            mapping: {totalRecordsField: 'total', dataField: 'data'}
         }
     }
 }
+
+class ClientGrid extends GridUI {
+    constructor(el, entity, url) {
+        super(el, entity, url);
+    }
+
+    reloadQuery() {
+        return super.reloadQuery();
+    }
+
+    getGridConfig() {
+
+        let deleteForm = config.page.forms['delete'];
+        let updateForm = config.page.forms['update'];
+
+        return {
+            //width: 900,
+            primaryKey: 'id',
+            uiLibrary: 'bootstrap4',
+            dataSource: this.getAJAXConfig(),
+            selectionMethod: 'basic',
+            columns: [
+                    { field: 'id', title: 'Id', width: 56, sortable: false },
+                    { field: 'title', title: 'Title' },
+                    { title: '', field: 'Edit', width: 42, type: 'icon', icon: 'fa fa-pencil', tooltip: 'Edit', events: { 'click': updateForm.showModal() } },
+                    { title: '', field: 'Delete', width: 42, type: 'icon', icon: 'fa fa-remove', tooltip: 'Delete', events: { 'click': deleteForm.showModal() } }
+                ],
+            pager: { limit: 10, sizes: [2, 5, 10, 20] },
+            paramNames: {limit: 'limit', page: 'page'},
+            mapping: {totalRecordsField: 'total', dataField: 'data'}
+        }
+    }
+}
+
+class AccountManagerGrid extends GridUI {
+    constructor(el, entity, url) {
+        super(el, entity, url);
+    }
+
+    reloadQuery() {
+        return super.reloadQuery();
+    }
+
+    getGridConfig() {
+
+        let deleteForm = config.page.forms['delete'];
+        let updateForm = config.page.forms['update'];
+        let dataSource = this.getAJAXConfig();
+        
+        console.log('dataSource', dataSource);
+        return {
+            //width: 900,
+            primaryKey: 'id',
+            uiLibrary: 'bootstrap4',
+            dataSource: dataSource,
+            selectionMethod: 'basic',
+            columns: [
+                    { field: 'id', title: 'Id', width: 56, sortable: false },
+                    { field: 'title', title: 'Title' },
+                    { title: '', field: 'Edit', width: 42, type: 'icon', icon: 'fa fa-pencil', tooltip: 'Edit', events: { 'click': updateForm.showModal() } },
+                    { title: '', field: 'Delete', width: 42, type: 'icon', icon: 'fa fa-remove', tooltip: 'Delete', events: { 'click': deleteForm.showModal() } }
+                ],
+            pager: { limit: 10, sizes: [2, 5, 10, 20] },
+            paramNames: {limit: 'limit', page: 'page'},
+            mapping: {totalRecordsField: 'total', dataField: 'data'}
+        }
+    }
+}
+
 
 class CategoryGrid extends GridUI {
     constructor(el, entity, url) {
@@ -954,7 +1071,9 @@ class CategoryGrid extends GridUI {
                     { title: '', field: 'Edit', width: 42, type: 'icon', icon: 'fa fa-pencil', tooltip: 'Edit', events: { 'click': updateForm.showModal() } },
                     { title: '', field: 'Delete', width: 42, type: 'icon', icon: 'fa fa-remove', tooltip: 'Delete', events: { 'click': deleteForm.showModal() } }
                 ],
-            //pager: { limit: 5 }
+            pager: { limit: 10, sizes: [2, 5, 10, 20] },
+            paramNames: {limit: 'limit', page: 'page'},
+            mapping: {totalRecordsField: 'total', dataField: 'data'}
         }
     }
 }
@@ -983,11 +1102,16 @@ class JobGrid extends GridUI {
                     { field: 'id', title: 'Id', width: 56, sortable: false },
                     { field: 'code', title: 'Job No' },
                     { field: 'title', title: 'Title' },
+                    { field: 'category', title: 'Category', filterable: true, renderer: function (value, record) { return record.category.title; }},
+                    { field: 'client', title: 'Client', filterable: false, renderer: function (value, record) { return record.client.title; }},
+                    { field: 'account_manager', title: 'Account Manager', filterable: false, renderer: function (value, record) { return record.account_manager.title; }},
                     { title: '', field: 'Detail', width: 42, type: 'icon', icon: 'fa fa-tasks', tooltip: 'Detail', events: { 'click': JobPage.viewChecklist() } },
                     { title: '', field: 'Edit', width: 42, type: 'icon', icon: 'fa fa-pencil', tooltip: 'Edit', events: { 'click': updateForm.showModal() } },
                     { title: '', field: 'Delete', width: 42, type: 'icon', icon: 'fa fa-remove', tooltip: 'Delete', events: { 'click': deleteForm.showModal() } }
                 ],
-            //pager: { limit: 5 }
+            pager: { limit: 10, sizes: [2, 5, 10, 20] },
+            paramNames: {limit: 'limit', page: 'page'},
+            mapping: {totalRecordsField: 'total', dataField: 'data'}
         }
     }
 }
@@ -999,7 +1123,9 @@ class DynamicGrid {
             CheckGrid,
             DepartmentGrid,
             CategoryGrid,
-            JobGrid
+            JobGrid,
+            ClientGrid,
+            AccountManagerGrid
         };
 
         return new classes[className];
@@ -1017,16 +1143,22 @@ class QuestionSelectGrid extends GridUI {
     }
 
     getGridConfig() {
+        let ajaxConfig = this.getAJAXConfig();
+        let url = ajaxConfig.url;
+        let categoryUrl = url += '?category_id=' + config.job.category.id;
+        ajaxConfig.url = categoryUrl;
+
+        console.log('QuestionSelectGrid.getGridConfig',categoryUrl , ajaxConfig, config.job);
         return {
             headerFilter: true,
             primaryKey: 'id',
             uiLibrary: 'bootstrap4',
-            dataSource: this.getAJAXConfig(),
+            dataSource: ajaxConfig,
             selectionMethod: 'basic',
             columns: [
                     { field: 'id', title: 'Id', width: 56, sortable: true, filterable: true },
                     { field: 'content', title: 'Content', sortable: true, filterable: true },
-                    { field: 'category', title: 'Category', filterable: true, renderer: function (value, record) { return record.category.title; }},
+                    //{ field: 'category', title: 'Category', filterable: true, renderer: function (value, record) { return record.category.title; }},
                     { title: '', field: 'Yes', filterable: false, width: 100, tmpl: '<button class="btn btn-primary">Select</button>', tooltip: 'Detail', events: { 'click': this.questionSelected() } },
                     //{ title: '', field: 'Edit', width: 42, type: 'icon', icon: 'fa fa-pencil', tooltip: 'Edit', events: { 'click': updateForm.showModal() } },
                     //{ title: '', field: 'Delete', width: 42, type: 'icon', icon: 'fa fa-remove', tooltip: 'Delete', events: { 'click': deleteForm.showModal() } }
@@ -1388,7 +1520,7 @@ class CheckList {
         $(subquestions).each(function(i, v) {
             let stepId = 'step-' + (i + 1);
             let stepTitle = 'Step ' + (i + 1);
-            let stepDescription = 'Step Description goes here';
+            let stepDescription = 'Answer yes or no';
             
             let template = $('#mustacheTemplate_wizard_item').html();
             html = Mustache.to_html(template, {

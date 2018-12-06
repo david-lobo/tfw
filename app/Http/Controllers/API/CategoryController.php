@@ -15,16 +15,13 @@ class CategoryController extends APIBaseController
      *
      * @return \Illuminate\Http\Request
      */
-    public function index()
+    public function index(Request $request)
     {
-        $minutes = 0;
-        $cacheId = 'categories';
-
-        $categorys = Cache::remember($cacheId, $minutes, function () {
-            return Category::all();
-        });
-        $categorys = is_null($categorys) ? [] : $categorys;
-        return response($categorys->jsonSerialize(), Response::HTTP_OK);
+        $fn = function () use ($request) {
+            $numRecords = $request->input('limit', 10);
+            return Category::paginate($numRecords);
+        };
+        return parent::list($request, $fn);
     }
 
     public function all()

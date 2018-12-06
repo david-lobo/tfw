@@ -11,7 +11,7 @@ use Spatie\Permission\Models\Permission;
 
 use Session;
 
-class RoleController extends Controller {
+class RoleController extends SiteBaseController {
 
     public function __construct() {
         $this->middleware(['auth', 'isAdmin']);//isAdmin middleware lets only users with a //specific permission permission to access these resources

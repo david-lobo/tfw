@@ -28,6 +28,11 @@
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
 }
 
+.navbar-brand img {
+	height: 2em;
+	background: white;
+}
+
 .modal-footer {
     justify-content: center;
 }
@@ -55,6 +60,9 @@
 	position: relative;
 }
 
+.dropdown-menu {
+	width: 100%;	
+}
 
 
 

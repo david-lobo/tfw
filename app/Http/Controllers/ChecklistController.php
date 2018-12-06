@@ -10,7 +10,7 @@ use App\Job;
 use  Illuminate\Support\Facades\App;
 use App\Services\ChecklistService;
 
-class ChecklistController extends Controller
+class ChecklistController extends SiteBaseController
 {
     protected $checklistService;
     /**
@@ -18,9 +18,10 @@ class ChecklistController extends Controller
      *
      * @return void
      */
-    public function __construct(ChecklistService $checklistService)
+    public function __construct(Request $request, ChecklistService $checklistService)
     {
         $this->checklistService = $checklistService;
+        parent::__construct($request);
     }
 
     /**
@@ -48,7 +49,7 @@ $routes[] = $route->getPath();
 dd($routes);
 die();*/
 
-        $data = [];
+        $data = $this->data;
         $data['route'] = \Request::route()->getName();
         $data['routes'] = [
             'notes.index' => route('notes.index', []),

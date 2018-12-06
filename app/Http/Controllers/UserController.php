@@ -10,12 +10,14 @@ use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
 use Session;
 
-class UserController extends Controller
+class UserController extends SiteBaseController
 {
 
-    public function __construct()
+    public function __construct(Request $request)
     {
         $this->middleware(['auth', 'isAdmin']);
+
+        parent::__construct($request);
     }
 
     /**
@@ -25,8 +27,12 @@ class UserController extends Controller
      */
     public function index()
     {
+        $data = $this->data;
         $users = User::all();
-        return view('users.index')->with('users', $users);
+        $data['users']= $users;
+        //return view('users.index')->with('users', $users);
+        //var_dump($data);die();
+        return view('users.index', $data);
     }
 
     /**

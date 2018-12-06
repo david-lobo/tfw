@@ -27,8 +27,9 @@ export class UpdateForm extends AjaxForm {
             }
 
             if (record[fieldId] === undefined) {
-                fieldId = 'category';
+                //fieldId = 'category';
                 subEntity = true;
+                fieldId = fieldId.replace('_id', '');
             }
 
             if (record[fieldId] != undefined) {
@@ -37,12 +38,16 @@ export class UpdateForm extends AjaxForm {
                     //console.log('selectpicker.populateFields 1.4', v.name, record);
                     $(v).val(record[fieldId]);
                 } else if ($(v).is('select')) {
+                    let selectedId;
                     //console.log('selectpicker.populateFields 1.5', v.name, record);
                     if (subEntity) {
+                        selectedId = record[fieldId]['id'];
                         $(v).selectpicker('val', record[fieldId]['id']);
-                    } else{                     
+                    } else{      
+                        selectedId = record[fieldId]         
                         $(v).selectpicker('val', record[fieldId]);
                     }
+                    $(v).attr('data-selected-val', selectedId);
                 }
             }
         });
@@ -52,11 +57,22 @@ export class UpdateForm extends AjaxForm {
         }
     }
 
+    populateFieldsFromAttr() {
+        console.log('populateFieldsFromAttr called');
+        $(this.selector).find('select.selectpicker').each(function(i, v) {
+            let value = $(v).attr('data-selected-val');
+            console.log(v, value);
+            $(v).attr('data-pop-done', true);
+            $(v).selectpicker('val', value);
+            $(v).selectpicker('refresh');
+        });
+    }
+
     showModal(event) {
 
         let that = this;
         return function (event) {
-        console.log('showModal', event);
+        console.log('showModal Called', event);
         
         let command = that.method === 'POST' ? 'Add' : 'Update';
         /*$('#dialog').find('form input[name="id"]').val(e.data.id);
@@ -72,6 +88,9 @@ export class UpdateForm extends AjaxForm {
             event.data.callback();
         }
 
+        console.log('showModal', that.selector, $(that.selector));
+
+        $(that.selector).find('form').trigger('modal:show');
         //$(this.selector).find('form').attr('data-method', "PUT");
         //$(this.selector).find('form').attr('data-entity', "check");
 

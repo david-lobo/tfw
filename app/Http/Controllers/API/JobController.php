@@ -16,21 +16,19 @@ class JobController extends APIBaseController
     {
         $this->checklistService = $checklistService;
     }
+
     /**
      * list resource
      *
      * @return \Illuminate\Http\Request
      */
-    public function index()
+    public function index(Request $request)
     {
-        $minutes = 0;
-        $cacheId = 'jobs';
-
-        $jobs = Cache::remember($cacheId, $minutes, function () {
-            return Job::all();
-        });
-        $jobs = is_null($jobs) ? [] : $jobs;
-        return response($jobs->jsonSerialize(), Response::HTTP_OK);
+        $fn = function () use ($request) {
+            $numRecords = $request->input('limit', 10);
+            return Job::paginate($numRecords);
+        };
+        return parent::list($request, $fn);
     }
 
     /**
@@ -76,7 +74,10 @@ class JobController extends APIBaseController
         $input = $request->all();
         $validator = \Validator::make($input, [
             'code' => 'required|String|unique:jobs,code',
-            'title' => 'required|String|unique:jobs,title|max:255|min:10'
+            'title' => 'required|String|unique:jobs,title|max:255|min:10',
+            'category_id' => 'required|Int|exists:categories,id',
+            'client_id' => 'required|Int|exists:clients,id',
+            'account_manager_id' => 'required|Int|exists:account_managers,id'
         ]);
 
         if ($validator->fails()) {
@@ -86,6 +87,9 @@ class JobController extends APIBaseController
         $job = new Job;
         $job->title = $input['title'];
         $job->code = $input['code'];
+        $job->category_id = $input['category_id'];
+        $job->client_id = $input['client_id'];
+        $job->account_manager_id = $input['account_manager_id'];
 
         $job->save();
 
@@ -108,7 +112,10 @@ class JobController extends APIBaseController
 
         $validator = \Validator::make($input, [
             'code' => 'required|String|unique:jobs,code,' . $job->id,
-            'title' => 'required|String|unique:jobs,title|max:255|min:10'
+            'title' => 'required|String|unique:jobs,title,' . $job->id . '|max:255|min:10',
+            'category_id' => 'required|Int|exists:categories,id',
+            'client_id' => 'required|Int|exists:clients,id',
+            'account_manager_id' => 'required|Int|exists:account_managers,id'
         ]);
 
         if ($validator->fails()) {
@@ -117,6 +124,9 @@ class JobController extends APIBaseController
 
         $job->title = $input['title'];
         $job->code = $input['code'];
+        $job->category_id = $input['category_id'];
+        $job->client_id = $input['client_id'];
+        $job->account_manager_id = $input['account_manager_id'];
 
         $job->save();
 

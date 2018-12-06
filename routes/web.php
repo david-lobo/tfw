@@ -42,6 +42,9 @@ Route::group(['middleware' => ['auth', 'clearance']], function() {
     Route::get('/departments',['uses'=>'DepartmentController@index'])->name('departments');
     Route::get('/categories',['uses'=>'CategoryController@index'])->name('categories');
     Route::get('/jobs',['uses'=>'JobController@index'])->name('jobs');
+
+    Route::get('/clients',['uses'=>'ClientController@index'])->name('clients');
+    Route::get('/accountmanagers',['uses'=>'AccountManagerController@index'])->name('accountmanagers');
 });
 
 Route::group(['middleware' => ['auth', 'clearance']], function() {
@@ -54,6 +57,15 @@ Route::group(['middleware' => ['auth', 'clearance']], function() {
     ]);
 
     Route::resource('d5-api/departments', 'API\DepartmentController', [
+      'except' => ['show']
+    ]);
+
+    Route::resource('d5-api/clients', 'API\ClientController', [
+      'except' => ['show']
+    ]);
+
+
+    Route::resource('d5-api/accountmanagers', 'API\AccountManagerController', [
       'except' => ['show']
     ]);
 

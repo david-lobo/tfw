@@ -12,6 +12,7 @@ class QuestionFilter extends AbstractFilter
     protected $filters = [
         'id' => IdFilter::class,
         'content' => ContentFilter::class,
-        'category' => CategoryFilter::class
+        'category' => CategoryFilter::class,
+        'category_id' => CategoryIdFilter::class
     ];
 }

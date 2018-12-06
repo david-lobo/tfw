@@ -3,9 +3,9 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Question;
+use App\Client;
 
-class QuestionController extends SiteBaseController
+class ClientController extends SiteBaseController
 {
     /**
      * Show the application dashboard.
@@ -17,12 +17,11 @@ class QuestionController extends SiteBaseController
         $data = $this->data;
 
         $data['routes'] = [
-            'subquestions' => route('subquestions', []),
-            'question' => route('questions.index', [])
+            'client' => route('clients.index', [])
         ];
         //$question = Question::findOrFail($id);
         //$data['question'] = $question;
         $data['route'] = \Request::route()->getName();
-        return view('questions.index')->with('data', $data);
+        return view('clients.index')->with('data', $data);
     }
 }

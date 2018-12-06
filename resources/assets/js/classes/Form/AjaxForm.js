@@ -205,13 +205,14 @@ export class AjaxForm {
             uiLibrary: 'bootstrap4',
             iconsLibrary: 'fontawesome',
             autoOpen: false,
+            scrollable: true,
             resizable: true,
             minWidth: 200,
             maxWidth: 600,
             minHeight: 200,
             maxHeight: 450,
             width: 450,
-            //height: 500,
+            height: "auto",
             modal: true
         }
     }

@@ -4,17 +4,18 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Department;
+use App\Http\Controllers\SiteBaseController;
 
-class JobController extends Controller
+class JobController extends SiteBaseController
 {
     /**
      * Create a new controller instance.
      *
      * @return void
      */
-    public function __construct()
+    public function __construct(Request $request)
     {
-        //
+        parent::__construct($request);
     }
 
     /**
@@ -24,16 +25,15 @@ class JobController extends Controller
      */
     public function index()
     {
-        $data = [];
+        $data = $this->data;
         $data['routes'] = [
             'department' => route('departments.index', []),
             'category' => route('categories.index', []),
             'job' => route('jobs.index', []),
+            'client' => route('clients.index', []),
+            'accountmanager' => route('accountmanagers.index', []),
             'checklist' => route('checklist', ['id' => 'ID']),
         ];
-        //$question = Question::findOrFail($id);
-        //$data['question'] = $question;
-        $data['route'] = \Request::route()->getName();
         return view('jobs.index')->with('data', $data);
     }
 }

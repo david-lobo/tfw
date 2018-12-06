@@ -6,18 +6,8 @@ use Illuminate\Http\Request;
 use App\Question;
 use App\Classes\Tfw\PDFCheckList;
 
-class HomeController extends Controller
+class HomeController extends SiteBaseController
 {
-    /**
-     * Create a new controller instance.
-     *
-     * @return void
-     */
-    public function __construct()
-    {
-        //
-    }
-
     /**
      * Show the application dashboard.
      *
@@ -40,7 +30,7 @@ class HomeController extends Controller
         }
 
         die();*/
-        $data = [];
+        $data = $this->data;
         $data['route'] = \Request::route()->getName();
         return view('home.index')->with('data', $data);
     }

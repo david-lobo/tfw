@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use PDF;
 use App\Customer;
 
-class CustomerController extends Controller
+class CustomerController extends SiteBaseController
 {
 
   public function index()

@@ -5,18 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Department;
 
-class CategoryController extends Controller
+class CategoryController extends SiteBaseController
 {
-    /**
-     * Create a new controller instance.
-     *
-     * @return void
-     */
-    public function __construct()
-    {
-        //
-    }
-
     /**
      * Show the application dashboard.
      *
@@ -24,7 +14,7 @@ class CategoryController extends Controller
      */
     public function index()
     {
-        $data = [];
+        $data = $this->data;
 
         $data['routes'] = [
             'department' => route('departments.index', []),

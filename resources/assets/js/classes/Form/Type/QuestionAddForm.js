@@ -11,7 +11,6 @@ export class QuestionAddForm extends UpdateForm {
         //let dropdown = $(this.selector).find('.answer-select').selectpicker({width: '100%'});
     }
 
-
     static getCategoryOptions() {
     	console.log('getCategoryOptions', config.categories);
     	let options = [];

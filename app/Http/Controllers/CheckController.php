@@ -5,18 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Question;
 
-class CheckController extends Controller
+class CheckController extends SiteBaseController
 {
-    /**
-     * Create a new controller instance.
-     *
-     * @return void
-     */
-    public function __construct()
-    {
-        //
-    }
-
     /**
      * Show the application dashboard.
      *
@@ -25,7 +15,7 @@ class CheckController extends Controller
     public function index($id)
     {
         //this.endpoints['jobs.checklist'].replace('ID', this.job.id)
-        $data = [];
+        $data = $this->data;
         $data['routes'] = [
             'check' => route('checks.index', ['id' => 'ID']),
             'check.add' => route('checks.store', []),

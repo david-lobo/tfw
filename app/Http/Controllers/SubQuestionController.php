@@ -5,18 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Question;
 
-class SubQuestionController extends Controller
+class SubQuestionController extends SiteBaseController
 {
-    /**
-     * Create a new controller instance.
-     *
-     * @return void
-     */
-    public function __construct()
-    {
-        //
-    }
-
     /**
      * Show the application dashboard.
      *
@@ -25,7 +15,7 @@ class SubQuestionController extends Controller
     public function index($id = null)
     {
         $question = Question::findOrFail($id);
-        $data = [];
+        $data = $this->data;
         $data['routes'] = [
             'checks' => route('checks', []),
             //'subquestions' => route('subquestions', []),

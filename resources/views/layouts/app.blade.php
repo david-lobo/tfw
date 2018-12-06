@@ -21,30 +21,24 @@
     </head>
     <body class="{{ str_replace('.', '-', $data['route'] ?? '') }}">
         <div id="main">
-            <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+            <nav class="navbar navbar-expand-lg navbar-light bg-light">
                 <div class="container">
-                    <a class="navbar-brand" href="#">{{ config('app.name', 'DotFive') }}</a>
+                    <a class="navbar-brand" href="#"><img class="logo bg-light" alt="TFW" src="{{ asset('images/tfw-logo.png') }}"></a>
                     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                     </button>
                     <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                        <?php //var_dump($menu); ?>
+                        @if (!empty($menu))
                         <ul class="navbar-nav mr-auto">
-                            <li class="nav-item active">
-                                <a class="nav-link" href="/">Home <span class="sr-only">(current)</span></a>
-                            </li>
+                            @foreach ($menu as $item)
                             <li class="nav-item">
-                                <a class="nav-link" href="/jobs">Jobs <span class="sr-only"></span></a>
+                                <a class="nav-link" href="{{ $item['url'] }}">{{ $item['text'] }}<span class="sr-only"></span></a>
                             </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="/questions">Questions <span class="sr-only"></span></a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="/categories">Categories <span class="sr-only"></span></a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="/departments">Departments <span class="sr-only"></span></a>
-                            </li>
+                            @endforeach
+
                         </ul>
+                        @endif
                         <ul class="navbar-nav">
                             <li class="nav-item dropdown">
                                 <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -162,7 +156,7 @@
 
         </div>
         <script>
-        let config;
+        let config = {};
         @if (isset($data))
         config = {!! json_encode($data, JSON_HEX_TAG) !!};
         @endif

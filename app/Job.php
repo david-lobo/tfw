@@ -6,12 +6,15 @@ use Illuminate\Database\Eloquent\Model;
 use App\Job;
 use App\Question;
 use App\Note;
+use App\Category;
+use App\Client;
+use App\AccountManager;
 
 class Job extends Model
 {
     public $fillable = ['code', 'title'];
-    protected $visible = ['id', 'code', 'title', 'checks', 'question', 'notes'];
-    protected $with = ['question', 'notes'];
+    protected $visible = ['id', 'code', 'title', 'checks', 'question', 'notes', 'category', 'client', 'accountManager'];
+    protected $with = ['question', 'notes', 'category', 'accountManager', 'client'];
 
     /*public function checks()
     {
@@ -26,6 +29,21 @@ class Job extends Model
     public function question()
     {
         return $this->belongsTo('App\Question');
+    }
+
+    public function category()
+    {
+        return $this->belongsTo(Category::class);
+    }
+
+    public function accountManager()
+    {
+        return $this->belongsTo(AccountManager::class);
+    }
+
+    public function client()
+    {
+        return $this->belongsTo(Client::class);
     }
 
     public function notes()
