@@ -26,7 +26,7 @@
                   Client
                 </td>
                 <td>
-                  .........
+                  {{ $data['job']['client']['title'] }}
                 </td>
               </tr>
               <tr>
@@ -42,7 +42,7 @@
                   Account Manager
                 </td>
                 <td>
-                  .........
+                  {{ $data['job']['account_manager']['title'] }}
                 </td>
               </tr>
               <tr>
@@ -50,7 +50,7 @@
                   Date
                 </td>
                 <td>
-                  .........
+                  {{ $data['job']['created_at'] }}
                 </td>
               </tr>
           </tbody>

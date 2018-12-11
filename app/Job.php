@@ -13,8 +13,18 @@ use App\AccountManager;
 class Job extends Model
 {
     public $fillable = ['code', 'title'];
-    protected $visible = ['id', 'code', 'title', 'checks', 'question', 'notes', 'category', 'client', 'accountManager'];
+    protected $visible = ['id', 'code', 'title', 'checks', 'question', 'notes', 'category', 'client', 'accountManager', 'created_at'];
     protected $with = ['question', 'notes', 'category', 'accountManager', 'client'];
+
+    /**
+     * The attributes that should be cast to native types.
+     *
+     * @var array
+     */
+    protected $casts = [
+        'created_at' => 'datetime:Y-m-d',
+    ];
+
 
     /*public function checks()
     {
@@ -56,6 +66,8 @@ class Job extends Model
         if (is_null($question)) {
             $question = $job->question;
         }
+
+        $questionIds = [];
 
         if (!is_null($question)) {
             $questions = Question::subquestionsWithQuestion($question);

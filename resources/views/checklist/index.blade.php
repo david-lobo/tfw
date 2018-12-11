@@ -11,25 +11,70 @@
         </div>
     </div>
     <div class="row">
-        <div class="col-7 checks">
-            <div class="row mt-3">
-                <div class="col-12">
-                    <h4 class="mb-3">Main Questions</h4>
-                    <table id="questionGrid"></table>
+      <div class="col-12">
+
+            <h4 class="my-3">Current Checklist</h4>
+<ul class="nav nav-tabs" id="myTab1" role="tablist">
+  <li class="nav-item">
+    <a class="nav-link active" id="home-tab1" data-toggle="tab" href="#home1" role="tab" aria-controls="home" aria-selected="true">Answers</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" id="profile-tab1" data-toggle="tab" href="#profile1" role="tab" aria-controls="profile" aria-selected="false">Notes</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" id="contact-tab1" data-toggle="tab" href="#contact1" role="tab" aria-controls="contact" aria-selected="false">Print</a>
+  </li>
+</ul>
+<div class="tab-content" id="myTabContent1">
+  <div class="tab-pane fade show active mt-3 col-xl-6 pl-0" id="home1" role="tabpanel" aria-labelledby="home-tab">            <div class="summary">
+            </div></div>
+  <div class="tab-pane fade mt-3 col-xl-6 pl-0" id="profile1" role="tabpanel" aria-labelledby="profile-tab">                <div id="accordion">
+            </div></div>
+  <div class="tab-pane fade col-xl-6" id="contact1" role="tabpanel" aria-labelledby="contact-tab">
+                    <div class="checklist-actions my-3">
                 </div>
-            </div>
-        </div>
-        <div class="col-5 mt-3 notes">
-            <h4 class="my-3">Checklist detail</h4>
-            <div class="summary">
-            </div>
-            <h4 class="my-3">Notes</h4>
-            <div id="accordion">
-            </div>
 
-
-        </div>
+  </div>
 </div>
+
+
+
+
+
+
+          </div>
+        </div>
+<hr class="my-5">
+    <div class="row">
+      <div class="col-12">
+
+<h4 class="my-3">Edit Checklist</h4>
+<ul class="nav nav-tabs" id="myTab" role="tablist">
+  <li class="nav-item">
+    <a class="nav-link active" id="home-tab" data-toggle="tab" href="#home" role="tab" aria-controls="home" aria-selected="true">Main Questions</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" id="profile-tab" data-toggle="tab" href="#profile" role="tab" aria-controls="profile" aria-selected="false">Sub-Questions</a>
+  </li>
+</ul>
+<div class="tab-content mt-3" id="myTabContent">
+  <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
+    <table id="questionGrid"></table>
+
+  </div>
+  <div class="tab-pane fade mt-3" id="profile" role="tabpanel" aria-labelledby="profile-tab">
+       <div class="wizard">
+          <div class="alert alert-warning" role="alert">
+            Please choose a main question first
+          </div>
+      </div>
+  </div>
+</div>
+
+
+
+      </div>
+    </div>
 
 </div>
 
@@ -47,7 +92,7 @@
             </div>
             <div class="modal-body">
 
-                <div class="wizard">
+                <div class="wizardXXX">
                 </div>
 
             </div>

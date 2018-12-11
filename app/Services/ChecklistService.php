@@ -18,7 +18,6 @@ class ChecklistService {
 
         $result['notes'] = $notes;
         $result['checks'] = $checks;
-
         return $result;
     }
 
@@ -44,7 +43,7 @@ class ChecklistService {
         return $grouped;
     }
 
-    public function getNotes(int $jobId): array
+    protected function getNotes(int $jobId): array
     {
         return Note::where('job_id', '=', $jobId)
             ->get()
@@ -52,7 +51,7 @@ class ChecklistService {
             ->toArray();
     }
 
-    public function getChecksGrouped(int $jobId, array $questionId): array
+    protected function getChecksGrouped(int $jobId, array $questionId): array
     {
         $query = DB::table('checks AS c')
         ->select('c.id', 'c.content', 'c.answer', 'c.department_id')
@@ -71,7 +70,8 @@ class ChecklistService {
 
         return $grouped;
     }
-    public function generateChecklist2(int $jobId, int $questionId): array
+
+    protected function generateChecklist2(int $jobId, int $questionId): array
     {
         $query = DB::table('t1')->select('t1.id', 't1.content', 't1.answer', 't1.department_id');
 

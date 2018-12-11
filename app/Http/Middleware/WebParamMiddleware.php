@@ -21,11 +21,13 @@ class WebParamResponse
         //$request['all_categories']= 'abc';
 
         $menu = \App\Http\Controllers\SiteBaseController::getMenu();
+        $manageMenu = \App\Http\Controllers\SiteBaseController::getManageMenu();
         /**
          * This variable is available globally on all your views, and sub-views
          */
         //view()->share('global_all_categories', 'abc');
         view()->share('menu', $menu);
+        view()->share('manageMenu', $manageMenu);
 
         return $next($request);
     }

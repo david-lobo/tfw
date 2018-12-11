@@ -19,6 +19,33 @@ class SiteBaseController extends Controller
         //$this->data['menu'] = $this->getMenu();
     }
 
+    public static function getManageMenu()
+    {
+        $menuItems = [
+            ['id' => 'questions', 'text' => 'Questions'],
+            ['id' => 'categories', 'text' => 'Categories'],
+            ['id' => 'departments', 'text' => 'Departments'],
+            ['id' => 'clients', 'text' => 'Clients'],
+            ['id' => 'accountmanagers', 'text' => 'Account Managers'],
+        ];
+
+
+
+        $current = url()->current();
+
+        $routes = array_map(
+            function($item) use ($current) {
+                $route = route($item['id'], []);
+                $item['url'] = $route;
+                $item['active'] = $current === $route;
+
+                return $item;
+            },
+        $menuItems);
+
+        return $routes;
+    }
+
     public static function getMenu()
     {
         /*$x = \Request::route()->getName();
@@ -38,11 +65,6 @@ class SiteBaseController extends Controller
 
         $menuItems = [
             ['id' => 'jobs', 'text' => 'Jobs'],
-            ['id' => 'questions', 'text' => 'Questions'],
-            ['id' => 'categories', 'text' => 'Categories'],
-            ['id' => 'departments', 'text' => 'Departments'],
-            ['id' => 'clients', 'text' => 'Clients'],
-            ['id' => 'accountmanagers', 'text' => 'Account Managers'],
         ];
         /*foreach ($menuItems as $key => $value) {
             $item = $menuItems[$key];

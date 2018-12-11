@@ -1142,6 +1142,27 @@ class QuestionSelectGrid extends GridUI {
         return super.reloadQuery();
     }
 
+
+    reloadCallback(entity) {
+        return function (jqXHR, textStatus) {
+
+            console.log('QuestionSelectGrid reloaded', config.job);
+
+            
+        if (config.job.question !== null) {
+        let rows = $('table#questionGrid tr');
+
+        let x = rows.filter(function () {
+            return $(this).children(':eq(0)').text() == config.job.question.id;
+        })
+
+        $(x).find('button').removeClass('btn-primary').addClass('btn-success').prop( "disabled", true );;
+
+            console.log('filterCols', x, "" + config.job.question.id);
+            }
+        }
+    }
+
     getGridConfig() {
         let ajaxConfig = this.getAJAXConfig();
         let url = ajaxConfig.url;
@@ -1159,7 +1180,7 @@ class QuestionSelectGrid extends GridUI {
                     { field: 'id', title: 'Id', width: 56, sortable: true, filterable: true },
                     { field: 'content', title: 'Content', sortable: true, filterable: true },
                     //{ field: 'category', title: 'Category', filterable: true, renderer: function (value, record) { return record.category.title; }},
-                    { title: '', field: 'Yes', filterable: false, width: 100, tmpl: '<button class="btn btn-primary">Select</button>', tooltip: 'Detail', events: { 'click': this.questionSelected() } },
+                    { title: '', field: 'Yes', filterable: false, width: 100, tmpl: '<button class="btn btn-primary">Select</button>', tooltip: 'Select', events: { 'click': this.questionSelected() } },
                     //{ title: '', field: 'Edit', width: 42, type: 'icon', icon: 'fa fa-pencil', tooltip: 'Edit', events: { 'click': updateForm.showModal() } },
                     //{ title: '', field: 'Delete', width: 42, type: 'icon', icon: 'fa fa-remove', tooltip: 'Delete', events: { 'click': deleteForm.showModal() } }
                 ],
@@ -1172,7 +1193,10 @@ class QuestionSelectGrid extends GridUI {
     questionSelected(event) {
         let that = this;
         return function (event) {
-
+            console.log('questionSelected', event.target);
+            if ($(event.target).hasClass('btn-success')) {
+                return false;
+            }
             //console.log('ChecklistPage.questionSelected', that.entity);
             $.get(that.url + '/' + event.data.record.id, function (data) {
                 //config.categories = data;
@@ -1208,7 +1232,7 @@ class ChecklistPage {
         let that = this;
         that.loadAllDepartments(function() {
             that.getJob();
-            that.getChecklist();
+            that.getChecklist(true);
         });
     }
 
@@ -1219,7 +1243,7 @@ class ChecklistPage {
         });*/
 
         let success = function (data) {
-            config.departments = data;
+            config.departments = data.data;
             callback !== undefined ? callback() : false;
             $( document ).trigger( "departments_updated", [ "bim", "baz" ] );
         };
@@ -1257,6 +1281,7 @@ class ChecklistPage {
 
             that.updateJobSummaryView();
             that.updateNotesView(that);
+            
         });
 
         $( document ).on( "checklist_updated", {
@@ -1268,6 +1293,10 @@ class ChecklistPage {
             console.log( arg2 );           // "baz"
 
             that.updateChecklistButtonsView(that);
+            that.grids['checklist'].grid.reload();
+
+
+            //that.getJob();
         });
     }
 
@@ -1368,14 +1397,14 @@ class ChecklistPage {
     }
 
     updateChecklistButtonsView(that) {
-
+        console.log('updateChecklistButtonsViewZZ');
         $('.checklist-actions').empty();
         //console.log('updateChecklistButtonsView', config.checklist, isEmpty(config.checklist));
         let elem;
         if (isEmpty(config.checklist)) {
         //<div class="alert alert-info" role="alert">
             elem = document.createElement('div');
-            let msg = 'No checks found';
+            let msg = 'No checks to print';
             $(elem).attr('class', 'alert alert-info').attr('role', 'alert').html(msg);
             $('.checklist-actions').append(elem);
         } else {
@@ -1403,23 +1432,34 @@ class ChecklistPage {
         let itemClass = 'list-group-item d-flex justify-content-between align-items-center';
         let answerYesClass = 'badge badge-success badge-pill';
         let answerNoClass = 'badge badge-danger badge-pill';
+        let elem;
         $(list).attr('class', 'list-group my-3');
 
         console.log('updateJobSummaryView', config.job);
 
-        $(config.job.answers).each(function(i, v) {
-            let item = document.createElement('li');
-            let answer = document.createElement('span');
-            $(answer).html(v.answer === 0 ? 'No' : 'Yes');
-            $(answer).attr('class', v.answer === 0 ? answerNoClass : answerYesClass);
-            $(item).attr('class', itemClass);
-            $(item).attr('title', 'ttest');
-            $(item).html(v.question.content);
-            $(item).append(answer);
-            $(list).append(item);
-        });
-        $(".summary").empty();
-        $(".summary").append(list);
+
+        if (isEmpty(config.job.answers)) {
+        //<div class="alert alert-info" role="alert">
+            elem = document.createElement('div');
+            let msg = 'No answers found';
+            $(elem).attr('class', 'alert alert-info').attr('role', 'alert').html(msg);
+            $('.summary').html(elem);
+        } else {
+            $(config.job.answers).each(function(i, v) {
+                let item = document.createElement('li');
+                let answer = document.createElement('span');
+                $(answer).html(v.answer === 0 ? 'No' : 'Yes');
+                $(answer).attr('class', v.answer === 0 ? answerNoClass : answerYesClass);
+                $(item).attr('class', itemClass);
+                $(item).attr('title', 'ttest');
+                $(item).html(v.question.content);
+                $(item).append(answer);
+                $(list).append(item);
+            });
+            $(".summary").empty();
+            $(".summary").append(list);
+
+        }
 
     }
 
@@ -1434,14 +1474,16 @@ class ChecklistPage {
         });
     }
 
-    getChecklist() {
+    getChecklist(triggerUpdate = true) {
         //console.log('CheckList.getSubQuestions');
         let endpoint = this.endpoints['jobs.checklist'].replace('ID', this.job.id);
         $.get(endpoint, function (data) {
             config.checklist = data;
             //callback();
             console.log('getChecklist', config.checklist);
-            $( document ).trigger( "checklist_updated", [ "bim", "baz" ] );
+            if (triggerUpdate) {
+                $( document ).trigger( "checklist_updated", [ "bim", "baz" ] );
+            }
         });
     }
 } 
@@ -1463,8 +1505,10 @@ class CheckList {
         this.buildTemplate();
         let config = this.getConfig();
         $('#smartwizard').smartWizard(config);
+        $('#myTab li:nth-child(2) a').tab('show'); // Select third tab
 
-        $('#exampleModal').modal({});
+        //$('#nav-tab a[href="#nav-profile"]').tab('show') // Select tab by name
+        ////$('#exampleModal').modal({});
 
               // Initialize the leaveStep event
       $("#smartwizard").on("leaveStep", function(e, anchorObject, stepNumber, stepDirection) {
@@ -1592,11 +1636,11 @@ class CheckList {
               success: function(data) {
                 console.log( "Data Loaded: " + data );
                 config.page.getJob();
-                config.page.getChecklist();
+                config.page.getChecklist(true);
 
                 toastr.success(data.message);
 
-                $('#exampleModal').modal('hide')
+                ////$('#exampleModal').modal('hide')
               },
               error: function(response) {
                 let json = response.responseJSON;

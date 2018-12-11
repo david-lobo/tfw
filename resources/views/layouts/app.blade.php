@@ -23,7 +23,7 @@
         <div id="main">
             <nav class="navbar navbar-expand-lg navbar-light bg-light">
                 <div class="container">
-                    <a class="navbar-brand" href="#"><img class="logo bg-light" alt="TFW" src="{{ asset('images/tfw-logo.png') }}"></a>
+                    <a class="navbar-brand" href="/"><img class="logo bg-light" alt="TFW" src="{{ asset('images/tfw-logo.png') }}"></a>
                     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                     </button>
@@ -36,6 +36,18 @@
                                 <a class="nav-link" href="{{ $item['url'] }}">{{ $item['text'] }}<span class="sr-only"></span></a>
                             </li>
                             @endforeach
+                            @role('Admin')
+                            @if (!empty($manageMenu))
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Manage</a>
+                                <div class="dropdown-menu">
+                                    @foreach ($manageMenu as $manageItem)
+                                    <a class="dropdown-item {{ $manageItem['active'] ? 'active' : ''}}" href="{{ $manageItem['url'] }}">{{ $manageItem['text'] }}</a>
+                                    @endforeach
+                                </div>
+                            </li>
+                            @endif
+                            @endrole
 
                         </ul>
                         @endif
@@ -149,7 +161,7 @@
             </div>
 
             <nav class="nav-bottom navbar fixed-bottom navbar-light bg-light text-center">
-                <div class="checklist-actions my-3">
+                <div class="checklist-actionsXXX my-3">
                 </div>
             </nav>
 

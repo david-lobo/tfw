@@ -18,30 +18,30 @@ class UserTableSeeder extends Seeder
         DB::table('users')->delete();
 
         $user = User::create([
-            'email' => 'admin@dotfive.co.uk',
+            'email' => 'admin@tfw.co.uk',
             'name' => 'Admin',
-            'password' => 'test123'
+            'password' => 'w00lw1ch'
         ]);
 
         $role_r = Role::where('name', '=', 'Admin')->firstOrFail();
         $user->assignRole($role_r);
 
         $user = User::create([
-            'email' => 'mark@dotfive.co.uk',
-            'name' => 'Mark',
-            'password' => 'test123'
+            'email' => 'david@davidlobo.co.uk',
+            'name' => 'David Lobo',
+            'password' => 'w00lw1ch'
         ]);
 
-        $role_r = Role::where('name', '=', 'Admin')->firstOrFail();
+        $role_r = Role::where('name', '=', 'Subscriber')->firstOrFail();
         $user->assignRole($role_r);
 
         $user = User::create([
-            'email' => 'sandy@dotfive.co.uk',
-            'name' => 'Sandy',
-            'password' => 'test123'
+            'email' => 'alex@tfw.co.uk',
+            'name' => 'Alex',
+            'password' => 'w00lw1ch'
         ]);
 
-        $role_r = Role::where('name', '=', 'Admin')->firstOrFail();
+        $role_r = Role::where('name', '=', 'Subscriber')->firstOrFail();
         $user->assignRole($role_r);
     }
 }
