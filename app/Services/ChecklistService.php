@@ -58,14 +58,16 @@ class ChecklistService {
         ->leftJoin('job_question AS jq', 'jq.question_id', '=', 'c.question_id')
         ->whereRaw('jq.answer = c.answer')
         ->whereIn('c.question_id', $questionId)
-        ->where('jq.job_id', '=', $jobId);
+        ->where('jq.job_id', '=', $jobId)
+        ->orderBy('c.priority', 'asc');
         //$results = $query->get();
 
         $results = $query->pluck('id')->toArray();
         $checks = Check::find($results)->toArray();
         $collection = collect($checks);
+        $grouped = $collection->sortBy('priority');
+        $grouped = $grouped->groupBy('department.title');
 
-        $grouped = $collection->groupBy('department.title');
         $grouped = $grouped->toArray();
 
         return $grouped;
