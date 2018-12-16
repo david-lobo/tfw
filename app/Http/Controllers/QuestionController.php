@@ -16,10 +16,8 @@ class QuestionController extends SiteBaseController
     {
         $data = $this->data;
 
-        $data['routes'] = [
-            'subquestions' => route('subquestions', []),
-            'question' => route('questions.index', [])
-        ];
+        $data['routes']['subquestions'] = route('subquestions', []);
+
         //$question = Question::findOrFail($id);
         //$data['question'] = $question;
         $data['route'] = \Request::route()->getName();

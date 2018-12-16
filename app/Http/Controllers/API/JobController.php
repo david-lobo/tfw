@@ -246,7 +246,7 @@ class JobController extends APIBaseController
         }
         $result['answers'] = $answers;
 
-        return $this->sendResponse($result, 'Job created successfully.');
+        return $this->sendResponse($result, 'Job updated successfully.');
     }
 
     public function checklist($id)

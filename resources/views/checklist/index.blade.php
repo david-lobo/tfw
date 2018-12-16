@@ -5,103 +5,122 @@
 @section('content')
 
 <div id="app" class="pb-5 checks-page">
-    <div class="row">
-        <div class="col-xs-12 col-md-12">
-        {{ Breadcrumbs::render('checklist', $data['job']) }}
-        </div>
+  <div class="row">
+    <div class="col-xs-12 col-md-12">
+      {{ Breadcrumbs::render('checklist', $data['job']) }}
     </div>
-    <div class="row">
-      <div class="col-12">
-
-            <h4 class="my-3">Current Checklist</h4>
-<ul class="nav nav-tabs" id="myTab1" role="tablist">
-  <li class="nav-item">
-    <a class="nav-link active" id="home-tab1" data-toggle="tab" href="#home1" role="tab" aria-controls="home" aria-selected="true">Answers</a>
-  </li>
-  <li class="nav-item">
-    <a class="nav-link" id="profile-tab1" data-toggle="tab" href="#profile1" role="tab" aria-controls="profile" aria-selected="false">Notes</a>
-  </li>
-  <li class="nav-item">
-    <a class="nav-link" id="contact-tab1" data-toggle="tab" href="#contact1" role="tab" aria-controls="contact" aria-selected="false">Print</a>
-  </li>
-</ul>
-<div class="tab-content" id="myTabContent1">
-  <div class="tab-pane fade show active mt-3 col-xl-6 pl-0" id="home1" role="tabpanel" aria-labelledby="home-tab">            <div class="summary">
-            </div></div>
-  <div class="tab-pane fade mt-3 col-xl-6 pl-0" id="profile1" role="tabpanel" aria-labelledby="profile-tab">                <div id="accordion">
-            </div></div>
-  <div class="tab-pane fade col-xl-6" id="contact1" role="tabpanel" aria-labelledby="contact-tab">
-                    <div class="checklist-actions my-3">
-                </div>
-
   </div>
-</div>
-
-
-
-
-
-
-          </div>
-        </div>
-<hr class="my-5">
-    <div class="row">
-      <div class="col-12">
-
-<h4 class="my-3">Edit Checklist</h4>
-<ul class="nav nav-tabs" id="myTab" role="tablist">
-  <li class="nav-item">
-    <a class="nav-link active" id="home-tab" data-toggle="tab" href="#home" role="tab" aria-controls="home" aria-selected="true">Main Questions</a>
-  </li>
-  <li class="nav-item">
-    <a class="nav-link" id="profile-tab" data-toggle="tab" href="#profile" role="tab" aria-controls="profile" aria-selected="false">Sub-Questions</a>
-  </li>
-</ul>
-<div class="tab-content mt-3" id="myTabContent">
-  <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
-    <table id="questionGrid"></table>
-
-  </div>
-  <div class="tab-pane fade mt-3" id="profile" role="tabpanel" aria-labelledby="profile-tab">
-       <div class="wizard">
-          <div class="alert alert-warning" role="alert">
-            Please choose a main question first
-          </div>
-      </div>
-  </div>
-</div>
-
-
-
-      </div>
-    </div>
-
-</div>
-
-
-
-      <!-- Modal -->
-      <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title" id="exampleModalLabel">Questions</h5>
-              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
+  <div class="row">
+    <div class="col-12">
+      <div class="accordion" id="checkListAccordion">
+        <div class="card">
+          <div class="card-header" id="headingOneCLA">
+            <h5 class="mb-0">
+              <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapseOneCLA" aria-expanded="true" aria-controls="collapseOneCLA">
+              <i class="fa fa-file-text-o"></i> View Checklist
               </button>
-            </div>
-            <div class="modal-body">
+            </h5>
+          </div>
+          <div id="collapseOneCLA" class="collapse show" aria-labelledby="headingOneCLA" data-parent="#checkListAccordion">
+            <div class="card-body">
+              <ul class="nav nav-tabs" id="viewTab" role="tablist">
+                <li class="nav-item">
+                  <a class="nav-link active" id="detailsTab" data-toggle="tab" href="#details" role="tab" aria-controls="details" aria-selected="true">Job</a>
+                </li>
 
-                <div class="wizardXXX">
+                <li class="nav-item">
+                  <a class="nav-link" id="answersTab" data-toggle="tab" href="#answers" role="tab" aria-controls="answers" aria-selected="true">Answers</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" id="notesTab" data-toggle="tab" href="#notes" role="tab" aria-controls="notes" aria-selected="false">Notes</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" id="printTab" data-toggle="tab" href="#print" role="tab" aria-controls="print" aria-selected="false">Print</a>
+                </li>
+              </ul>
+              <div class="tab-content" id="viewTabContent">
+                <div class="tab-pane fade show active mt-3 col-xl-6 pl-0" id="details" role="tabpanel" aria-labelledby="detailsTab">
+                  <div class="details">
+                  </div>
                 </div>
-
+                <div class="tab-pane fade show mt-3 col-xl-6 pl-0" id="answers" role="tabpanel" aria-labelledby="answersTab">
+                  <div class="summary">
+                  </div>
+                </div>
+                <div class="tab-pane fade mt-3 col-xl-6 pl-0" id="notes" role="tabpanel" aria-labelledby="notesTab">
+                  <div id="accordion">
+                  </div>
+                </div>
+                <div class="tab-pane fade col-xl-6" id="print" role="tabpanel" aria-labelledby="printTab">
+                  <div class="checklist-actions my-3">
+                  </div>
+                </div>
+              </div>
             </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header" id="headingTwoCLA">
+            <h5 class="mb-0">
+              <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapseTwoCLA" aria-expanded="false" aria-controls="collapseTwoCLA">
+              <i class="fa fa-pencil-square-o"></i>  Edit Checklist
+              </button>
+            </h5>
+          </div>
+          <div id="collapseTwoCLA" class="collapse" aria-labelledby="headingTwoCLA" data-parent="#checkListAccordion">
+            <div class="card-body">
+              <ul class="nav nav-tabs" id="editTab" role="tablist">
+                <li class="nav-item">
+                  <a class="nav-link active" id="mainQuestionsTab" data-toggle="tab" href="#mainQuestions" role="tab" aria-controls="mainQuestions" aria-selected="true">Main Questions</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" id="subQuestionsTab" data-toggle="tab" href="#subQuestions" role="tab" aria-controls="subQuestions" aria-selected="false">Sub-Questions</a>
+                </li>
+              </ul>
+              <div class="tab-content mt-3" id="editTabContent">
+                <div class="tab-pane fade show active" id="mainQuestions" role="tabpanel" aria-labelledby="mainQuestionsTab">
+                  <table id="questionGrid"></table>
+                </div>
+                <div class="tab-pane fade mt-3" id="subQuestions" role="tabpanel" aria-labelledby="subQuestionsTab">
+                  <div class="wizard">
+                    <div class="alert alert-warning" role="alert">
+                      Please choose a main question first
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </div>
+    </div>
+  </div>
+  <hr class="my-5">
+  <div class="row">
+    <div class="col-12">
+    </div>
+  </div>
+</div>
+<!-- Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Questions</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="wizardXXX">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
 @verbatim
 <script id="mustacheTemplate_wizard_item" type="text/template">
 <li><a href="#{{step_id}}">{{step_title}}<br /><small>{{step_description}}</small></a></li>

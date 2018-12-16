@@ -28,7 +28,7 @@
                     <span class="navbar-toggler-icon"></span>
                     </button>
                     <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                        <?php //var_dump($menu); ?>
+                        @if (!Auth::guest())
                         @if (!empty($menu))
                         <ul class="navbar-nav mr-auto">
                             @foreach ($menu as $item)
@@ -51,7 +51,8 @@
 
                         </ul>
                         @endif
-                        <ul class="navbar-nav">
+                        @endif
+                        <ul class="navbar-nav ml-auto">
                             <li class="nav-item dropdown">
                                 <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 @if (Auth::guest())
@@ -172,7 +173,7 @@
         @if (isset($data))
         config = {!! json_encode($data, JSON_HEX_TAG) !!};
         @endif
-        config.endpoints = {
+        /*config.endpoints = {
             question: "/d5-api/questions",
             question_all: "/d5-api/questions/all",
             check: "/d5-api/checks",
@@ -180,7 +181,7 @@
             category: "/d5-api/categories",
             category_all: "/d5-api/categories/all",
             item: "/d5-api/items"
-        };
+        };*/
 
         //config.forms = [];
         config.page = null;

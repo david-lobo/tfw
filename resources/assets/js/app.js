@@ -31,13 +31,13 @@ class App {
             question: {id: 4}
         },*/
         //this.trees = [];
-        this.endpoints = {
+        /*this.endpoints = {
             question: "/d5-api/questions",
             question_all: "/d5-api/questions/all",
             category: "/d5-api/categories",
             category_all: "/d5-api/categories/all",
             item: "/d5-api/items"
-        },
+        },*/
         this.page    
     }
 
@@ -183,8 +183,7 @@ class AdminPage {
     }
 
     loadAllCategories(callback) {
-
-        $.get(config.endpoints.category_all, function (data) {
+        $.get(config.routes['categories.all'], function (data) {
             config.categories = data;
             callback();
         });
@@ -552,9 +551,11 @@ class QuestionPage extends ListPage {
 
         let that = this;
         return function (event) {
-            //console.log('viewSubQuestions', event);
+            console.log('viewSubQuestions', event.data.record);
             let entity = event.data.record;
-            let newURL = config.routes.subquestions + '/' + entity.id;
+            let newURL = config.routes['subquestions'] + '/' + entity.id;
+            //let newURL = config.routes['web.subquestions'].replace('ID', entity.id);
+            //newURL = config.routes.subquestions.replace('PARENT_ID', entity.parent.id)
             window.location = newURL;
         }
     }
@@ -1221,6 +1222,15 @@ class ChecklistPage {
     }
 
     init() {
+
+
+
+        /*$('#testButton').on('click', function(){
+            console.log('testButtons');
+            $('#collapseOneCLA').collapse('hide');
+            //$('#viewTab li:nth-child(1) a').tab('show'); 
+        });*/
+
         this.bindEvents()
 
         //console.log('init ChecklistPage', '#questionGrid', 'question', config.routes.question);
@@ -1279,6 +1289,7 @@ class ChecklistPage {
             console.log( arg1 );           // "bim"
             console.log( arg2 );           // "baz"
 
+            that.updateJobDetailsView();
             that.updateJobSummaryView();
             that.updateNotesView(that);
             
@@ -1427,7 +1438,108 @@ class ChecklistPage {
         }
     }
 
+
+    updateJobDetailsView() {
+        let list = document.createElement('dl');
+        let itemClass = 'list-group-item d-flex justify-content-between align-items-center';
+        //let answerYesClass = 'badge badge-success badge-pill';
+        //let answerNoClass = 'badge badge-danger badge-pill';
+        let elem;
+        $(list).attr('class', 'row');
+
+        console.log('updateJobDetailsView', config.job);
+
+
+        if (isEmpty(config.job)) {
+        //<div class="alert alert-info" role="alert">
+            elem = document.createElement('div');
+            let msg = 'No job found';
+            $(elem).attr('class', 'alert alert-info').attr('role', 'alert').html(msg);
+            $('.summary').html(elem);
+        } else {
+            let fields = [];
+
+            /*let jobno = config.job.code;
+            let client = config.job.client.title;
+            let title = config.job.title;
+            let accountManager = config.job.account_manager.title;
+            let createdAt = config.job.created_at;*/
+
+            fields.push({title: 'Job No', value: config.job.code});
+            fields.push({title: 'Client', value: config.job.client.title});
+            fields.push({title: 'Title', value: config.job.title});
+            fields.push({title: 'Account Manager', value: config.job.account_manager.title});
+            fields.push({title: 'Date', value: config.job.created_at});
+
+            console.log(fields);
+
+            $(fields).each(function(i, v) {
+                let itemTitle = document.createElement('dt');
+                let itemValue = document.createElement('dd');
+                let titleClass = "col-4";
+                let valueClass = "col-8";
+
+                $(itemTitle).html(v.title).attr('class', titleClass);
+                $(itemValue).html(v.value).attr('class', valueClass);
+
+                $(list).append(itemTitle);
+                $(list).append(itemValue);
+                /*let item = document.createElement('li');
+                let answer = document.createElement('span');
+                $(answer).html(v.answer === 0 ? 'No' : 'Yes');
+                $(answer).attr('class', v.answer === 0 ? answerNoClass : answerYesClass);
+                $(item).attr('class', itemClass);
+                $(item).attr('title', 'ttest');
+                $(item).html(v.question.content);
+                $(item).append(answer);
+                $(list).append(item);*/                
+            });
+
+            
+            $(".details").empty();
+            $(".details").append(list);
+
+        }
+
+    }
+
     updateJobSummaryView() {
+        let list = document.createElement('dl');
+        let itemClass = 'list-group-item d-flex justify-content-between align-items-center';
+        let answerYesClass = 'badge badge-success badge-pill';
+        let answerNoClass = 'badge badge-danger badge-pill';
+        let elem;
+        $(list).attr('class', 'row');
+
+        console.log('updateJobSummaryView', config.job);
+
+        if (isEmpty(config.job.answers)) {
+        //<div class="alert alert-info" role="alert">
+            elem = document.createElement('div');
+            let msg = 'No answers found';
+            $(elem).attr('class', 'alert alert-info').attr('role', 'alert').html(msg);
+            $('.summary').html(elem);
+        } else {
+            $(config.job.answers).each(function(i, v) {
+                let itemTitle = document.createElement('dt');
+                let itemValue = document.createElement('dd');
+
+                let titleClass = "col-4";
+                let valueClass = "col-8";
+
+                $(itemTitle).html(v.question.content).attr('class', titleClass);
+                $(itemValue).html(v.answer === 0 ? 'No' : 'Yes').attr('class', valueClass);
+
+                $(list).append(itemTitle);
+                $(list).append(itemValue);
+            });
+            $(".summary").empty();
+            $(".summary").append(list);
+        }
+    }
+
+
+    updateJobSummaryView2() {
         let list = document.createElement('ul');
         let itemClass = 'list-group-item d-flex justify-content-between align-items-center';
         let answerYesClass = 'badge badge-success badge-pill';
@@ -1505,7 +1617,7 @@ class CheckList {
         this.buildTemplate();
         let config = this.getConfig();
         $('#smartwizard').smartWizard(config);
-        $('#myTab li:nth-child(2) a').tab('show'); // Select third tab
+        $('#editTab li:nth-child(2) a').tab('show'); // Select third tab
 
         //$('#nav-tab a[href="#nav-profile"]').tab('show') // Select tab by name
         ////$('#exampleModal').modal({});
@@ -1639,6 +1751,10 @@ class CheckList {
                 config.page.getChecklist(true);
 
                 toastr.success(data.message);
+
+                $('#collapseTwoCLA').collapse('hide');
+                $('#collapseOneCLA').collapse('show');
+                $('#viewTab li:nth-child(1) a').tab('show');
 
                 ////$('#exampleModal').modal('hide')
               },

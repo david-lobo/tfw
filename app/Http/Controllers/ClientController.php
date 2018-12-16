@@ -16,9 +16,9 @@ class ClientController extends SiteBaseController
     {
         $data = $this->data;
 
-        $data['routes'] = [
+        /*$data['routes'] = [
             'client' => route('clients.index', [])
-        ];
+        ];*/
         //$question = Question::findOrFail($id);
         //$data['question'] = $question;
         $data['route'] = \Request::route()->getName();

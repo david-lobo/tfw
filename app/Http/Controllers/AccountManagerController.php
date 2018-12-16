@@ -34,9 +34,9 @@ dd($routes);
 die();*/
         $data = $this->data;
 
-        $data['routes'] = [
+        /*$data['routes'] = [
             'accountManager' => route('accountmanagers.index', [])
-        ];
+        ];*/
         //$question = Question::findOrFail($id);
         //$data['question'] = $question;
         $data['route'] = \Request::route()->getName();

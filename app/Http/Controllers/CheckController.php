@@ -16,7 +16,7 @@ class CheckController extends SiteBaseController
     {
         //this.endpoints['jobs.checklist'].replace('ID', this.job.id)
         $data = $this->data;
-        $data['routes'] = [
+        /*$data['routes'] = [
             'check' => route('checks.index', ['id' => 'ID']),
             'check.add' => route('checks.store', []),
             'check.update' => route('checks.update', ['id' => 'ID']),
@@ -24,7 +24,7 @@ class CheckController extends SiteBaseController
             'department' => route('departments.index', []),
             'question' => route('questions.index', []),
             'check.reorder' => route('checks.reorder'),
-        ];
+        ];*/
         $data['route'] = \Request::route()->getName();
         $data['test'] = true;
         if (!is_null($id)) {

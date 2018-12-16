@@ -64,6 +64,11 @@
 	width: 100%;	
 }
 
+.accordion .btn-link {
+	&:hover, &:focus {
+		text-decoration: none;
+	}
+}
 
 
 

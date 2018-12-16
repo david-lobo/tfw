@@ -16,7 +16,35 @@ class SiteBaseController extends Controller
     {
         $this->data = [];
         $this->data['route'] = \Request::route()->getName();
+        $this->data['routes'] = self::getRoutes();
+
         //$this->data['menu'] = $this->getMenu();
+    }
+
+    public static function getRoutes()
+    {
+        return [
+            'accountmanager' => route('accountmanagers.index', []),
+            'accountManager' => route('accountmanagers.index', []),
+            'category' => route('categories.index', []),
+            'categories.all' => route('categories.all', []),
+            'check' => route('checks.index', ['id' => 'ID']),
+            'checks' => route('checks', []),
+            'checklist' => route('checklist', ['id' => 'ID']),
+            'check.add' => route('checks.store', []),
+            'check.delete' => route('checks.destroy', ['id' => 'ID']),
+            'check.update' => route('checks.update', ['id' => 'ID']),
+            'check.reorder' => route('checks.reorder'),
+            'client' => route('clients.index', []),
+            'department' => route('departments.index', []),
+            'job' => route('jobs.index', []),
+            'jobs.show' => route('jobs.show', ['id' => 'ID']),
+            'notes.index' => route('notes.index', []),
+            'notes.update' => route('notes.update', ['id' => 'ID']),
+            'question' => route('questions.index', []),
+            'question' => route('questions.index', []),
+            'subquestions' => route('subquestions.tree', ['id' => 'ID']),
+        ];
     }
 
     public static function getManageMenu()

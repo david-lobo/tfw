@@ -98,7 +98,7 @@ Route::group(['middleware' => ['auth', 'clearance']], function() {
 
     Route::get('d5-api/jobs/{id}/checklist',['uses'=>'API\JobController@checklist'])->name('jobs.checklist');
 
-    Route::get('d5-api/categories/all',['uses'=>'API\CategoryController@all']);
+    Route::get('d5-api/categories/all',['uses'=>'API\CategoryController@all'])->name('categories.all');
 
     Route::get('d5-api/questions/all',['uses'=>'API\QuestionController@all']);
 

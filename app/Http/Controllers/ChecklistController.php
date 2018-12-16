@@ -51,7 +51,18 @@ die();*/
 
         $data = $this->data;
         $data['route'] = \Request::route()->getName();
-        $data['routes'] = [
+
+        $routes = [
+            'jobs.answers.update' => route('jobs.answers.update', ['id' => $id]),
+            'jobs.checklist' => route('jobs.checklist', ['id' => $id]),
+            'checklist.view' => route('checklist.view', ['id' => $job->id]),
+            'checklist.export' => route('checklist.export', ['id' => $job->id])
+        ];
+        //$routes = $this->data['routes'];
+        //var_dump(array_merge($existingRoutes, $routes));die();
+        $data['routes'] = array_merge($data['routes'], $routes);
+        //var_dump($data['routes']);die();
+        /*$data['routes'] = [
             'notes.index' => route('notes.index', []),
             'notes.update' => route('notes.update', ['id' => 'ID']),
             'department' => route('departments.index', []),
@@ -61,7 +72,8 @@ die();*/
             'jobs.show' => route('jobs.show', ['id' => 'ID']),
             'checklist.view' => route('checklist.view', ['id' => $job->id]),
             'checklist.export' => route('checklist.export', ['id' => $job->id])
-        ];
+
+        ];*/
         $data['job'] = $job->toArray();
         $data['checklist'] = $this->checklistService->getChecklist($job);
 
@@ -91,7 +103,7 @@ die();*/
                 // Send data to the view using loadView function of PDF facade
         $pdf = PDF::loadView('checklist.view', ['data' => $data]);
         // If you want to store the generated pdf to the server then you can use the store function
-        $pdf->save(storage_path().'_filename.pdf');
+        //$pdf->save(storage_path('app/tfw_checklist.pdf'));
         // Finally, you can download the file using download function
         return $pdf->stream('checklist.pdf');
     }
