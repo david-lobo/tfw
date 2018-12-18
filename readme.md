@@ -1,10 +1,8 @@
 ## TFW Printers Checklist System ##
 
-Web application for creation and management of PDF checklists for jobs.  
+Web application for the management of checklists for print jobs, built with Laravel 5.7 and  Bootstrap 4.
 
-This includes Admin dashboard for management of various business entities (Jobs, Questions, Users, Categories, Departments, Clients). 
-
-This is build using Laravel 5.7
+This includes Admin dashboard for management of various business entities (Jobs, Questions, Users, Categories, Departments, Clients) and frontend for users to access the checklists.
 
 ### Installation ###
 
