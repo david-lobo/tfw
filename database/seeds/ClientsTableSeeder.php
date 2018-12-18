@@ -13,17 +13,16 @@ class ClientsTableSeeder extends Seeder
      */
     public function run()
     {
-
         DB::table('clients')->delete();
 
-         //insert some base categories
-         DB::table('clients')->insert(array(
-             array(
+        //insert some base categories
+        DB::table('clients')->insert(array(
+            array(
                 'title'=> 'Acme',
                 'alias' => str_slug('Acme'),
                 'created_at' => \Carbon\Carbon::now()->toDateTimeString(),
                 'updated_at' => \Carbon\Carbon::now()->toDateTimeString()),
-             array(
+            array(
                 'title'=> 'Tetley',
                 'alias' => str_slug('Tetley'),
                 'created_at' => \Carbon\Carbon::now()->toDateTimeString(),
@@ -38,7 +37,7 @@ class ClientsTableSeeder extends Seeder
         ));
 
         $faker = Faker::create();
-        foreach (range(1,20) as $index) {
+        foreach (range(1, 20) as $index) {
             $title = $faker->company();
             DB::table('clients')->insert([
                 'title' => $title,
@@ -46,7 +45,6 @@ class ClientsTableSeeder extends Seeder
                 'created_at' => \Carbon\Carbon::now()->toDateTimeString(),
                 'updated_at' => \Carbon\Carbon::now()->toDateTimeString()
             ]);
-    }
-
+        }
     }
 }

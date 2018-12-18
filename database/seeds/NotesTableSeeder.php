@@ -14,16 +14,13 @@ class NotesTableSeeder extends Seeder
      */
     public function run()
     {
-        $departmentProd = Department::where('alias', '=' , str_slug('Production'))->firstOrFail();
-
-        $departmentRepro = Department::where('alias', '=' , str_slug('Repro'))->firstOrFail();
-
-        $job1 = Job::where('code', '=' , 'LOBOA4ENV01')->firstOrFail();
-
+        $departmentProd = Department::where('alias', '=', str_slug('Production'))->firstOrFail();
+        $departmentRepro = Department::where('alias', '=', str_slug('Repro'))->firstOrFail();
+        $job1 = Job::where('code', '=', 'LOBOA4ENV01')->firstOrFail();
         DB::table('notes')->delete();
 
-         //insert some base categories
-         DB::table('notes')->insert(
+        //insert some base categories
+        DB::table('notes')->insert(
             array(
                 array(
                     'content'=> 'This is a note for production department.',

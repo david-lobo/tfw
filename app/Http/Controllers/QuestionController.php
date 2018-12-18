@@ -8,7 +8,7 @@ use App\Question;
 class QuestionController extends SiteBaseController
 {
     /**
-     * Show the application dashboard.
+     * Show the Questions page.
      *
      * @return \Illuminate\Http\Response
      */
@@ -17,10 +17,8 @@ class QuestionController extends SiteBaseController
         $data = $this->data;
 
         $data['routes']['subquestions'] = route('subquestions', []);
-
-        //$question = Question::findOrFail($id);
-        //$data['question'] = $question;
         $data['route'] = \Request::route()->getName();
+
         return view('questions.index')->with('data', $data);
     }
 }

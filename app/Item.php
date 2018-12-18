@@ -8,7 +8,6 @@ use App\Category;
 class Item extends Model
 {
     protected $visible = ['id', 'alias', 'title', 'categories'];
-    //protected $with = ['categories'];
 
     public function categories()
     {

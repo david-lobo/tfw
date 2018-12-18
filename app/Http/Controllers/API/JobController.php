@@ -32,11 +32,12 @@ class JobController extends APIBaseController
     }
 
     /**
-     * list resource
+     * show resource
      *
+     * @param  int  $id
      * @return \Illuminate\Http\Request
      */
-    public function show($id)
+    public function show(int $id)
     {
         $job = Job::findOrFail($id);
         $result = $job->toArray();
@@ -51,6 +52,11 @@ class JobController extends APIBaseController
         return response($result, Response::HTTP_OK);
     }
 
+    /**
+     * list all resources
+     *
+     * @return \Illuminate\Http\Response
+     */
     public function all()
     {
         $minutes = 0;
@@ -163,18 +169,12 @@ class JobController extends APIBaseController
         $input = $request->all();
         $job = Job::with('question')->findOrFail($id);
         $question = Question::findOrFail($input['question_id']);
-
         $questions = Question::subquestionsWithQuestion($question);
-        //var_dump($questions);die();
 
         $validator = \Validator::make($input, [
             'question_id' => 'Int|required|exists:questions,id',
             "questions"    => "required|array|min:" . count($questions),
             "questions.*"  => "boolean|required",
-            //"questions_id"    => "required|array|min:" . count($questions),
-            //"questions_id.*"  => "Int|required|exists:questions,id",
-            //"questions_value"    => "required|array|min:" . count($questions),
-            //"questions_value.*"  => "boolean|required",
         ]);
 
         if ($validator->fails()) {
@@ -188,26 +188,19 @@ class JobController extends APIBaseController
         }
 
         $inputQuestions = Question::find(array_keys($input['questions']));
+
         if (count($inputQuestions) !== count($questions)) {
             return $this->sendError('Validation Error', [
                 "Question requires" . count($questions). " answers not " .count($inputQuestions)
             ]);
         }
 
-
-
         $questionIds = collect($questions)->pluck('id')->toArray();
-        //var_dump(collect($questions)->pluck('id')->toArray());die();
-
-        //var_dump($inputQuestions->toArray());die();
         $job->question_id = $input['question_id'];
-        //$answers = [];
         $toSync = [];
         $invalidAnswer = false;
 
         foreach ($inputQuestions as $key => $question) {
-            //$answers[$question->id] = $input['questions'][$question->id];
-            //continue;
             if (!in_array($question->id, $questionIds)) {
                 $invalidAnswer = true;
                 break;
@@ -216,17 +209,10 @@ class JobController extends APIBaseController
             $record = [
                 'answer' => $input['questions'][$question->id],
             ];
+
             $toSync[$question->id] = $record;
-            /*$question->jobAnswers()->sync(
-                [
-                    $job->id => [
-                        'answer' => $input['questions'][$question->id],
-                        'created_at' => \Carbon\Carbon::now()->toDateTimeString(),
-                        'updated_at' => \Carbon\Carbon::now()->toDateTimeString()
-                    ]
-                ]
-            );*/
         }
+
         if ($invalidAnswer) {
             return $this->sendError('Validation Error', [
                 "Answer submitted for invalid subquestion"
@@ -239,11 +225,12 @@ class JobController extends APIBaseController
         Cache::flush();
 
         $result = $job->toArray();
-
         $answers = [];
+
         if (!is_null($job->question)) {
             $answers = Job::answers($job);
         }
+
         $result['answers'] = $answers;
 
         return $this->sendResponse($result, 'Job updated successfully.');
@@ -253,7 +240,6 @@ class JobController extends APIBaseController
     {
         $job = Job::findOrFail($id);
         $result = $this->checklistService->getChecks($job);
-        //$result['answers'] = $answers;
 
         return response($result, Response::HTTP_OK);
     }

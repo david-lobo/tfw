@@ -37,6 +37,11 @@ class CheckController extends APIBaseController
         return response($checks->jsonSerialize(), Response::HTTP_OK);
     }
 
+    /**
+     * list all resources
+     *
+     * @return \Illuminate\Http\Response
+     */
     public function all()
     {
         $minutes = 0;
@@ -62,14 +67,8 @@ class CheckController extends APIBaseController
             'content' => 'required|String|unique:checks,content',
             'answer' => 'boolean|required',
             'question_id' => 'Int|required|exists:questions,id',
-            'department_id' => 'Int|required|exists:departments,id'
-            //'parent_id' => 'Int|nullable|exists:questions,id',
-            //'category_id' => 'Int|exists:categories,id'
-            //'description' => 'required'
+            'department_id' => 'Int|required|exists:departments,id',
         ]);
-
-        //$input['parent_id'] = empty($input['parent_id']) ? 0 : $input['parent_id'];
-        //$input['category_id'] = empty($input['category_id']) ? 0 : $input['category_id'];
 
         if ($validator->fails()) {
             return $this->sendError('Validation Error', $validator->errors());
@@ -118,16 +117,6 @@ class CheckController extends APIBaseController
         $check->question_id = $input['question_id'];
         $check->department_id = $input['department_id'];
 
-        /*if (isset($input['parent_id'])) {
-            $parent = Question::where('id', '=', $input['parent_id'])-> firstOrFail();
-            $question->parent_id = $parent->id;
-        }
-
-        if ($input['category_id']) {
-            $category = Category::where('id', '=', $input['category_id'])-> firstOrFail();
-            $question->category_id = $category->id;
-        }*/
-
         $check->save();
 
         Cache::flush();
@@ -163,7 +152,7 @@ class CheckController extends APIBaseController
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Reorder the resource
      *
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
@@ -171,17 +160,10 @@ class CheckController extends APIBaseController
     public function reorder(Request $request)
     {
         $input = $request->all();
-        //var_dump($input);die();
 
         $validator = \Validator::make($input, [
-            //"question_id" => 'Int|required|exists:questions,id',
             "checks"    => "required|array|min:2",
             "checks.*"  => "Int|required|exists:checks,id",
-            //"questions.*"  => "boolean|required",
-            //"questions_id"    => "required|array|min:" . count($questions),
-            //"questions_id.*"  => "Int|required|exists:questions,id",
-            //"questions_value"    => "required|array|min:" . count($questions),
-            //"questions_value.*"  => "boolean|required",
         ]);
 
         if ($validator->fails()) {
@@ -191,20 +173,10 @@ class CheckController extends APIBaseController
         $inputChecks = Check::find(array_keys($checks));
 
         $inputChecks->each(function ($item, $key) use ($checks) {
-           $item->priority = $checks[$item->id];
-           $item->save();
+            $item->priority = $checks[$item->id];
+            $item->save();
         });
-
-        //var_dump($inputChecks->toArray());
-
-        /*if (!is_null($question->parent_id)) {
-            return $this->sendError('Validation Error', [
-                "Must be a parent question, subquestion selected"
-            ]);
-        }*/
 
         return $this->sendResponse($inputChecks->toArray(), 'Check updated successfully.');
     }
-
-
 }

@@ -10,22 +10,23 @@ use Illuminate\Database\Eloquent\Builder;
 class Question extends Model
 {
     public $fillable = ['content','parent_id', 'answer'];
+    protected $visible = [
+        'id',
+        'alias',
+        'content',
+        'parent_id',
+        'category',
+        'answer',
+        'childs'
+    ];
 
-    protected $visible = ['id', 'alias', 'content','parent_id', 'category', 'answer', 'childs'];
     protected $with = ['category'];
 
-    /**
-     * Get the index name for the model.
-     *
-     * @return string
-    */
-    public function childs() {
-        return $this->hasMany('App\Question','parent_id','id') ;
+    public function childs()
+    {
+        return $this->hasMany('App\Question', 'parent_id', 'id') ;
     }
 
-        /**
-     * Get the phone record associated with the user.
-     */
     public function category()
     {
         return $this->belongsTo('App\Category');
@@ -56,19 +57,17 @@ class Question extends Model
     public static function subquestionsWithQuestion($question, $results = [])
     {
         if (!isset($question->childs) || empty($question->childs)) {
-            //die($question->childs);
             return $results;
         }
 
         $results[] = $question;
 
         return self::subquestionsWithQuestion($question->childs->first(), $results);
-
     }
 
     public function jobAnswers()
     {
-       return $this->belongsToMany('App\Job')->withPivot('answer')->withTimestamps();
+        return $this->belongsToMany('App\Job')->withPivot('answer')->withTimestamps();
     }
 
     public function scopeFilter(Builder $builder, $request)
@@ -80,5 +79,4 @@ class Question extends Model
     {
         return (new QuestionSort($request))->sort($builder);
     }
-
 }

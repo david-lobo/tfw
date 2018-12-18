@@ -12,17 +12,16 @@ class CustomersTableSeeder extends Seeder
      */
     public function run()
     {
-
         DB::table('customers')->delete();
 
-         //insert some base categories
-         DB::table('customers')->insert(array(
-             array(
+        //insert some base categories
+        DB::table('customers')->insert(array(
+            array(
                 'name' => 'David Lobo',
                 'email' => 'oldlobster@gmail.com',
                 'mobileno' => '07914362667'
             ),
-             array(
+            array(
                 'name' => 'Alex Caprani',
                 'email' => 'alex@tfw.com',
                 'mobileno' => '0791443432'

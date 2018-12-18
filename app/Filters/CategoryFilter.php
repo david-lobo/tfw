@@ -1,7 +1,5 @@
 <?php
 
-// TypeFilter.php
-
 namespace App\Filters;
 
 use App\Category;
@@ -11,7 +9,7 @@ class CategoryFilter
     public function filter($builder, $value)
     {
             $categories = Category::where('title', $value)
-            ->orWhere('title', 'like', '%' . $value . '%')->get();
+                ->orWhere('title', 'like', '%' . $value . '%')->get();
 
             $ids = $categories->pluck('id');
 

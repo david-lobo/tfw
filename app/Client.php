@@ -9,7 +9,6 @@ class Client extends Model
 {
     public $fillable = ['title'];
     protected $visible = ['id', 'alias', 'title'];
-    //protected $with = ['childs', 'items'];
 
     public function jobs()
     {

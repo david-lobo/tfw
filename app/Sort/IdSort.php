@@ -1,7 +1,5 @@
 <?php
 
-// TypeFilter.php
-
 namespace App\Sort;
 
 class IdSort

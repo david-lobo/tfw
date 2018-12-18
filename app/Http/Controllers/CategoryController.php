@@ -8,7 +8,7 @@ use App\Department;
 class CategoryController extends SiteBaseController
 {
     /**
-     * Show the application dashboard.
+     * Show the Categories page
      *
      * @return \Illuminate\Http\Response
      */
@@ -20,9 +20,9 @@ class CategoryController extends SiteBaseController
             'department' => route('departments.index', []),
             'category' => route('categories.index', [])
         ];
-        //$question = Question::findOrFail($id);
-        //$data['question'] = $question;
+
         $data['route'] = \Request::route()->getName();
+
         return view('categories.index')->with('data', $data);
     }
 }

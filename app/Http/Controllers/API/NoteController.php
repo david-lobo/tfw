@@ -37,7 +37,6 @@ class NoteController extends APIBaseController
     public function store(Request $request)
     {
         $input = $request->all();
-
         $validator = self::makeValidator($input, $request, false);
 
         if ($validator->fails()) {
@@ -92,6 +91,7 @@ class NoteController extends APIBaseController
     public function destroy($id)
     {
         $note = Note::findOrFail($id);
+
         $note->delete();
 
         Cache::flush();
@@ -99,13 +99,20 @@ class NoteController extends APIBaseController
         return $this->sendResponse([], 'Note deleted successfully.');
     }
 
+    /**
+     * Extend the validator to check Notes
+     *
+     * @param  array  $input
+     * @param  \Illuminate\Http\Request  $request
+     * @param  boolean  $update
+     * @return \Illuminate\Http\Response
+     */
     public static function makeValidator(array $input, Request $request, $update = false)
     {
         \Validator::extend('uniqueNote', function ($attribute, $value, $parameters, $validator) {
             $count = \DB::table('notes')->where('department_id', $value)
                                         ->where('job_id', $parameters[0])
                                         ->count();
-
             return $count === 0;
         });
 

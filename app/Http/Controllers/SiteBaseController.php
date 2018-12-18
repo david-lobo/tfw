@@ -5,22 +5,30 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Routing\Router;
-use  Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\App;
 use App\Http\Controllers\Controller as Controller;
 
-class SiteBaseController extends Controller
+abstract class SiteBaseController extends Controller
 {
     protected $data;
 
+    /**
+     * Create a new controller instance.
+     *
+     * @return void
+     */
     public function __construct(Request $request)
     {
         $this->data = [];
         $this->data['route'] = \Request::route()->getName();
         $this->data['routes'] = self::getRoutes();
-
-        //$this->data['menu'] = $this->getMenu();
     }
 
+    /**
+     * Get routes config
+     *
+     * @return array
+     */
     public static function getRoutes()
     {
         return [
@@ -47,6 +55,11 @@ class SiteBaseController extends Controller
         ];
     }
 
+    /**
+     * Get menu for managers
+     *
+     * @return array
+     */
     public static function getManageMenu()
     {
         $menuItems = [
@@ -57,55 +70,40 @@ class SiteBaseController extends Controller
             ['id' => 'accountmanagers', 'text' => 'Account Managers'],
         ];
 
-
-
         $current = url()->current();
 
         $routes = array_map(
-            function($item) use ($current) {
+            function ($item) use ($current) {
                 $route = route($item['id'], []);
                 $item['url'] = $route;
                 $item['active'] = $current === $route;
 
                 return $item;
             },
-        $menuItems);
+            $menuItems
+        );
 
         return $routes;
     }
 
+    /**
+     * Get menu for users
+     *
+     * @return array
+     */
     public static function getMenu()
     {
-        /*$x = \Request::route()->getName();
-        $router = App::make(Router::class);
-        $collection = $router->getRoutes();
-        dd($collection);die();
-        //
-
-
-        $routes = [];
-
-        foreach($collection as $route) {
-        $routes[] = $route->getPath();
-        }
-
-        dd($routes);*/
-
         $menuItems = [
             ['id' => 'jobs', 'text' => 'Jobs'],
         ];
-        /*foreach ($menuItems as $key => $value) {
-            $item = $menuItems[$key];
-            $item['url'] = route($value, []);
-            $menuItems[$key] = $item;
-        }*/
 
         $routes = array_map(
-            function($item) {
+            function ($item) {
                 $item['url'] = route($item['id'], []);
                 return $item;
             },
-        $menuItems);
+            $menuItems
+        );
 
         return $routes;
     }

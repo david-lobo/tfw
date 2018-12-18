@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-
 use App\User;
 use Auth;
 use Spatie\Permission\Models\Role;
@@ -12,7 +11,11 @@ use Session;
 
 class UserController extends SiteBaseController
 {
-
+    /**
+     * Create a new controller instance.
+     *
+     * @return void
+     */
     public function __construct(Request $request)
     {
         $this->middleware(['auth', 'isAdmin']);
@@ -30,8 +33,7 @@ class UserController extends SiteBaseController
         $data = $this->data;
         $users = User::all();
         $data['users']= $users;
-        //return view('users.index')->with('users', $users);
-        //var_dump($data);die();
+
         return view('users.index', $data);
     }
 
@@ -43,7 +45,8 @@ class UserController extends SiteBaseController
     public function create()
     {
         $roles = Role::get();
-        return view('users.create', ['roles'=>$roles]);
+
+        return view('users.create', ['roles' => $roles]);
     }
 
     /**
@@ -71,7 +74,10 @@ class UserController extends SiteBaseController
             }
         }
 
-        return redirect()->route('users.index')->with('flash_message', 'User successfully added.');
+        return redirect()->route('users.index')->with(
+            'flash_message',
+            'User successfully added.'
+        );
     }
 
     /**
@@ -127,7 +133,10 @@ class UserController extends SiteBaseController
             $user->roles()->detach();
         }
 
-        return redirect()->route('users.index')->with('flash_message', 'User successfully edited.');
+        return redirect()->route('users.index')->with(
+            'flash_message',
+            'User successfully edited.'
+        );
     }
 
     /**
@@ -141,6 +150,9 @@ class UserController extends SiteBaseController
         $user = User::findOrFail($id);
         $user->delete();
 
-        return redirect()->route('users.index')->with('flash_message', 'User successfully deleted.');
+        return redirect()->route('users.index')->with(
+            'flash_message',
+            'User successfully deleted.'
+        );
     }
 }

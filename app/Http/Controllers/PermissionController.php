@@ -3,19 +3,21 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-
 use Auth;
 
 //Importing laravel-permission models
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
-
 use Session;
 
-class PermissionController extends SiteBaseController {
+class PermissionController extends SiteBaseController
+{
 
-    public function __construct() {
-        $this->middleware(['auth', 'isAdmin']); //isAdmin middleware lets only users with a //specific permission permission to access these resources
+    public function __construct()
+    {
+        $this->middleware(['auth', 'isAdmin']);
+        // isAdmin middleware lets only users with a
+        // specific permission permission to access these resources
     }
 
     /**
@@ -23,7 +25,8 @@ class PermissionController extends SiteBaseController {
     *
     * @return \Illuminate\Http\Response
     */
-    public function index() {
+    public function index()
+    {
         $permissions = Permission::all(); //Get all permissions
 
         return view('permissions.index')->with('permissions', $permissions);
@@ -34,7 +37,8 @@ class PermissionController extends SiteBaseController {
     *
     * @return \Illuminate\Http\Response
     */
-    public function create() {
+    public function create()
+    {
         $roles = Role::get(); //Get all roles
 
         return view('permissions.create')->with('roles', $roles);
@@ -46,7 +50,8 @@ class PermissionController extends SiteBaseController {
     * @param  \Illuminate\Http\Request  $request
     * @return \Illuminate\Http\Response
     */
-    public function store(Request $request) {
+    public function store(Request $request)
+    {
         $this->validate($request, [
             'name'=>'required|max:40',
         ]);
@@ -69,9 +74,10 @@ class PermissionController extends SiteBaseController {
         }
 
         return redirect()->route('permissions.index')
-            ->with('flash_message',
-             'Permission'. $permission->name.' added!');
-
+            ->with(
+                'flash_message',
+                'Permission'. $permission->name .' added!'
+            );
     }
 
     /**
@@ -80,7 +86,8 @@ class PermissionController extends SiteBaseController {
     * @param  int  $id
     * @return \Illuminate\Http\Response
     */
-    public function show($id) {
+    public function show($id)
+    {
         return redirect('permissions');
     }
 
@@ -90,7 +97,8 @@ class PermissionController extends SiteBaseController {
     * @param  int  $id
     * @return \Illuminate\Http\Response
     */
-    public function edit($id) {
+    public function edit($id)
+    {
         $permission = Permission::findOrFail($id);
 
         return view('permissions.edit', compact('permission'));
@@ -103,7 +111,8 @@ class PermissionController extends SiteBaseController {
     * @param  int  $id
     * @return \Illuminate\Http\Response
     */
-    public function update(Request $request, $id) {
+    public function update(Request $request, $id)
+    {
         $permission = Permission::findOrFail($id);
         $this->validate($request, [
             'name'=>'required|max:40',
@@ -112,9 +121,10 @@ class PermissionController extends SiteBaseController {
         $permission->fill($input)->save();
 
         return redirect()->route('permissions.index')
-            ->with('flash_message',
-             'Permission'. $permission->name.' updated!');
-
+            ->with(
+                'flash_message',
+                'Permission'. $permission->name .' updated!'
+            );
     }
 
     /**
@@ -123,21 +133,25 @@ class PermissionController extends SiteBaseController {
     * @param  int  $id
     * @return \Illuminate\Http\Response
     */
-    public function destroy($id) {
+    public function destroy($id)
+    {
         $permission = Permission::findOrFail($id);
 
-    //Make it impossible to delete this specific permission
-    if ($permission->name == "Administer roles & permissions") {
+        //Make it impossible to delete this specific permission
+        if ($permission->name === "Administer roles & permissions") {
             return redirect()->route('permissions.index')
-            ->with('flash_message',
-             'Cannot delete this Permission!');
+            ->with(
+                'flash_message',
+                'Cannot delete this Permission!'
+            );
         }
 
         $permission->delete();
 
         return redirect()->route('permissions.index')
-            ->with('flash_message',
-             'Permission deleted!');
-
+        ->with(
+            'flash_message',
+            'Permission deleted!'
+        );
     }
 }

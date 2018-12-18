@@ -28,6 +28,11 @@ class SubQuestionController extends APIBaseController
         return response($questions->jsonSerialize(), Response::HTTP_OK);
     }
 
+    /**
+     * list all resources
+     *
+     * @return \Illuminate\Http\Response
+     */
     public function all()
     {
         $minutes = 0;
@@ -52,8 +57,7 @@ class SubQuestionController extends APIBaseController
         $validator = \Validator::make($input, [
             'content' => 'required|String|unique:questions,content',
             'parent_id' => 'Int|nullable|exists:questions,id||unique:questions, parent_id',
-            'category_id' => 'Int|exists:categories,id'
-            //'description' => 'required'
+            'category_id' => 'Int|exists:categories,id',
         ]);
 
         $input['parent_id'] = empty($input['parent_id']) ? 0 : $input['parent_id'];
@@ -153,17 +157,12 @@ class SubQuestionController extends APIBaseController
         $cacheId = 'tree_' . $id;
 
         $questions = Cache::remember($cacheId, $minutes, function () use ($id) {
-            //$question = Question::where('id', '=', $id)->with('childs')->get();
             $q = Question::findOrFail($id);
             $tree = Question::subquestions($q);
-
             $result = $q->toArray();
-            //unset($result['childs']);
-            //$result['childs'] = $tree;
 
             return $result;
         });
-
 
         $questions = is_null($questions) ? [] : [$questions];
         return response($questions, Response::HTTP_OK);

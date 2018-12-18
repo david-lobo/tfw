@@ -12,12 +12,11 @@ class CategoriesTableSeeder extends Seeder
      */
     public function run()
     {
-
         DB::table('categories')->delete();
 
          //insert some base categories
          DB::table('categories')->insert(array(
-             array(
+            array(
                 'title'=> 'Packaging - FBB',
                 'alias' => str_slug('Packaging - FBB'),
                 'created_at' => \Carbon\Carbon::now()->toDateTimeString(),
@@ -33,6 +32,6 @@ class CategoriesTableSeeder extends Seeder
                 'alias' => str_slug('Envelopes'),
                 'created_at' => \Carbon\Carbon::now()->toDateTimeString(),
                 'updated_at' => \Carbon\Carbon::now()->toDateTimeString())
-        ));
+            ));
     }
 }

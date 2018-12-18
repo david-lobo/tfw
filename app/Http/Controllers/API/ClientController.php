@@ -50,7 +50,7 @@ class ClientController extends APIBaseController
 
         Cache::flush();
 
-        return $this->sendResponse($client->toArray(), 'Post created successfully.');
+        return $this->sendResponse($client->toArray(), 'Client created successfully.');
     }
 
     /**

@@ -7,12 +7,13 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Routing\Router;
 use PDF;
 use App\Job;
-use  Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\App;
 use App\Services\ChecklistService;
 
 class ChecklistController extends SiteBaseController
 {
     protected $checklistService;
+
     /**
      * Create a new controller instance.
      *
@@ -25,7 +26,7 @@ class ChecklistController extends SiteBaseController
     }
 
     /**
-     * Show the application dashboard.
+     * Show the Checklist page
      *
      * @return \Illuminate\Http\Response
      */
@@ -33,21 +34,6 @@ class ChecklistController extends SiteBaseController
     {
         $input = $request->all();
         $job = Job::findOrFail($id);
-
-/*$router = App::make(Router::class);
-$collection = $router->getRoutes();
-dd($collection);die();
-//
-
-
-$routes = [];
-
-foreach($collection as $route) {
-$routes[] = $route->getPath();
-}
-
-dd($routes);
-die();*/
 
         $data = $this->data;
         $data['route'] = \Request::route()->getName();
@@ -58,29 +44,20 @@ die();*/
             'checklist.view' => route('checklist.view', ['id' => $job->id]),
             'checklist.export' => route('checklist.export', ['id' => $job->id])
         ];
-        //$routes = $this->data['routes'];
-        //var_dump(array_merge($existingRoutes, $routes));die();
-        $data['routes'] = array_merge($data['routes'], $routes);
-        //var_dump($data['routes']);die();
-        /*$data['routes'] = [
-            'notes.index' => route('notes.index', []),
-            'notes.update' => route('notes.update', ['id' => 'ID']),
-            'department' => route('departments.index', []),
-            'question' => route('questions.index', []),
-            'jobs.answers.update' => route('jobs.answers.update', ['id' => $id]),
-            'jobs.checklist' => route('jobs.checklist', ['id' => $id]),
-            'jobs.show' => route('jobs.show', ['id' => 'ID']),
-            'checklist.view' => route('checklist.view', ['id' => $job->id]),
-            'checklist.export' => route('checklist.export', ['id' => $job->id])
 
-        ];*/
+        $data['routes'] = array_merge($data['routes'], $routes);
         $data['job'] = $job->toArray();
         $data['checklist'] = $this->checklistService->getChecklist($job);
 
-        //dd($data);die();
         return view('checklist.index')->with('data', $data);
     }
 
+    /**
+     * Show preview of the checklist
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
     public function view($id)
     {
         $data = $this->getData();
@@ -89,25 +66,38 @@ die();*/
         $data['job'] = $job->toArray();
         $data['checklist'] = $this->checklistService->getChecklist($job);
 
-        //var_dump($data['checklist']['checks']);die();
-        //var_dump($data);die();
         return view('checklist.view')->with('data', $data);
     }
 
+    /**
+     * Export PDF file
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
     public function export($id)
     {
         $data = $this->getData();
         $job = Job::findOrFail($id);
         $data['job'] = $job->toArray();
         $data['checklist'] = $this->checklistService->getChecklist($job);
-                // Send data to the view using loadView function of PDF facade
+
+        // Send data to the view using loadView function of PDF facade
         $pdf = PDF::loadView('checklist.view', ['data' => $data]);
-        // If you want to store the generated pdf to the server then you can use the store function
-        //$pdf->save(storage_path('app/tfw_checklist.pdf'));
+
+        // If you want to store the generated pdf to the server then you can use
+        // the store function
+        // $pdf->save(storage_path('app/tfw_checklist.pdf'));
         // Finally, you can download the file using download function
+
         return $pdf->stream('checklist.pdf');
     }
 
+    /**
+     * Get some config data
+     *
+     * @return array
+     */
     protected function getData()
     {
         $data = [];
@@ -124,9 +114,14 @@ die();*/
         return $data;
     }
 
+    /**
+     * Base64 encode an image url
+     *
+     * @param  string  $url
+     * @return string
+     */
     protected function base64Encode($url)
     {
-
         //$avatarUrl = 'https://assets-cdn.github.com/images/modules/logos_page/GitHub-Mark.png';
         //$url = 'https://i.imgur.com/Gw0dhlx.png';
         $arrContextOptions=array(

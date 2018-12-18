@@ -13,7 +13,7 @@ class CategoryController extends APIBaseController
     /**
      * list resource
      *
-     * @return \Illuminate\Http\Request
+     * @return \Illuminate\Http\Response
      */
     public function index(Request $request)
     {
@@ -24,6 +24,11 @@ class CategoryController extends APIBaseController
         return parent::list($request, $fn);
     }
 
+    /**
+     * list all resources
+     *
+     * @return \Illuminate\Http\Response
+     */
     public function all()
     {
         $minutes = 0;
@@ -61,7 +66,7 @@ class CategoryController extends APIBaseController
 
         Cache::flush();
 
-        return $this->sendResponse($category->toArray(), 'Post created successfully.');
+        return $this->sendResponse($category->toArray(), 'Category created successfully.');
     }
 
     /**

@@ -13,32 +13,30 @@ class AccountManagersTableSeeder extends Seeder
      */
     public function run()
     {
-
         DB::table('account_managers')->delete();
-
-         //insert some base categories
-         DB::table('account_managers')->insert(array(
-             array(
-                'title'=> 'Mike Jones',
-                'alias' => str_slug('Mike Jones'),
-                'created_at' => \Carbon\Carbon::now()->toDateTimeString(),
-                'updated_at' => \Carbon\Carbon::now()->toDateTimeString()),
-             array(
-                'title'=> 'Scrooge McDuck',
-                'alias' => str_slug('Scrooge McDuck'),
-                'created_at' => \Carbon\Carbon::now()->toDateTimeString(),
-                'updated_at' => \Carbon\Carbon::now()->toDateTimeString()
+        DB::table('account_managers')->insert(array(
+            array(
+            'title'=> 'Mike Jones',
+            'alias' => str_slug('Mike Jones'),
+            'created_at' => \Carbon\Carbon::now()->toDateTimeString(),
+            'updated_at' => \Carbon\Carbon::now()->toDateTimeString()),
+            array(
+            'title'=> 'Scrooge McDuck',
+            'alias' => str_slug('Scrooge McDuck'),
+            'created_at' => \Carbon\Carbon::now()->toDateTimeString(),
+            'updated_at' => \Carbon\Carbon::now()->toDateTimeString()
             ),
             array(
-                'title'=> 'Mr Burns',
-                'alias' => str_slug('Mr Burns'),
-                'created_at' => \Carbon\Carbon::now()->toDateTimeString(),
-                'updated_at' => \Carbon\Carbon::now()->toDateTimeString()
+            'title'=> 'Mr Burns',
+            'alias' => str_slug('Mr Burns'),
+            'created_at' => \Carbon\Carbon::now()->toDateTimeString(),
+            'updated_at' => \Carbon\Carbon::now()->toDateTimeString()
             )
         ));
 
         $faker = Faker::create();
-        foreach (range(1,20) as $index) {
+
+        foreach (range(1, 20) as $index) {
             $title = $faker->name();
             DB::table('account_managers')->insert([
                 'title' => $title,
@@ -46,7 +44,6 @@ class AccountManagersTableSeeder extends Seeder
                 'created_at' => \Carbon\Carbon::now()->toDateTimeString(),
                 'updated_at' => \Carbon\Carbon::now()->toDateTimeString()
             ]);
-    }
-
+        }
     }
 }

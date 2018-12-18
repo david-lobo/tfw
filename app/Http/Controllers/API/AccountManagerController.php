@@ -7,7 +7,6 @@ use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Cache;
 use App\Http\Requests;
 use App\AccountManager;
-use App\Category;
 
 class AccountManagerController extends APIBaseController
 {
@@ -50,7 +49,7 @@ class AccountManagerController extends APIBaseController
 
         Cache::flush();
 
-        return $this->sendResponse($accountmanager->toArray(), 'Post created successfully.');
+        return $this->sendResponse($accountmanager->toArray(), 'Account Manager created successfully.');
     }
 
     /**
@@ -80,7 +79,7 @@ class AccountManagerController extends APIBaseController
 
         Cache::flush();
 
-        return $this->sendResponse($accountmanager->toArray(), 'AccountManager updated successfully.');
+        return $this->sendResponse($accountmanager->toArray(), 'Account Manager updated successfully.');
     }
 
     /**
@@ -96,6 +95,6 @@ class AccountManagerController extends APIBaseController
 
         Cache::flush();
 
-        return $this->sendResponse([], 'AccountManager deleted successfully.');
+        return $this->sendResponse([], 'Account Manager deleted successfully.');
     }
 }

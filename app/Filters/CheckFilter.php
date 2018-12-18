@@ -1,7 +1,5 @@
 <?php
 
-// ProductFilter.php
-
 namespace App\Filters;
 
 use App\Filters\AbstractFilter;

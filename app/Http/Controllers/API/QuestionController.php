@@ -24,13 +24,32 @@ class QuestionController extends APIBaseController
         $minutes = 0;
 
         $questions = Cache::remember($cacheKey, $minutes, function () use ($numRecords, $request) {
-            //return Question::filter($request)->get();
             return Question::filter($request)->sort($request)->where('parent_id', '=', null)->with('childs')->paginate($numRecords);
         });
         $questions = is_null($questions) ? [] : $questions;
         return response($questions->jsonSerialize(), Response::HTTP_OK);
     }
 
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function show($id)
+    {
+        $question = Question::with('childs')->findOrFail($id);
+        //$data = $question->toArray();
+        $question = is_null($question) ? [] : $question;
+
+        return $this->sendResponse($question->jsonSerialize(), Response::HTTP_OK);
+    }
+
+    /**
+     * list all resources
+     *
+     * @return \Illuminate\Http\Response
+     */
     public function all()
     {
         $minutes = 0;
@@ -56,7 +75,6 @@ class QuestionController extends APIBaseController
             'content' => 'required|String|unique:questions,content',
             'parent_id' => 'Int|nullable|exists:questions,id|unique:questions,parent_id',
             'category_id' => 'Int|exists:categories,id'
-            //'description' => 'required'
         ]);
 
         $input['parent_id'] = empty($input['parent_id']) ? 0 : $input['parent_id'];
@@ -143,20 +161,5 @@ class QuestionController extends APIBaseController
         Cache::flush();
 
         return $this->sendResponse([], 'Question deleted successfully.');
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
-    {
-        $question = Question::with('childs')->findOrFail($id);
-        //$data = $question->toArray();
-        $question = is_null($question) ? [] : $question;
-
-        return $this->sendResponse($question->jsonSerialize(), Response::HTTP_OK);
     }
 }

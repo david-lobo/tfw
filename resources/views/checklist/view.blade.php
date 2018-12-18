@@ -55,11 +55,9 @@
               </tr>
           </tbody>
         </table>
-
         </td>
         <td width="50%" align="right">
           <img class="logo" alt="logo" src="{{ $data['tfwLogo'] }}">
-
         </td>
       </tr>
   </tbody>
@@ -71,19 +69,15 @@
     </tr>
   </thead>
   <tbody>
-
       @foreach ($checklist as $check)
       <tr>
         <td>{{ $check['content'] }}</td>
         <td><td><div class="checkbox"> </div></td></td>
       </tr>
       @endforeach
-
   </tbody>
 </table>
-
 <hr>
-
 <table class="notes">
   <thead>
     <tr>
@@ -91,11 +85,8 @@
     </tr>
   </thead>
   <tbody>
-
   <tr>
     <td>
-      <?php //var_dump($checklist[0]['department']['id']); ?>
-      <?php //var_dump($data['checklist']['notes'][$checklist[0]['department']['id']]); ?>
       @if (!empty($data['checklist']['notes']))
       @if (!empty($checklist[0]))
       @isset($data['checklist']['notes'][$checklist[0]['department']['id']]['content'])
@@ -105,11 +96,8 @@
       @endif
     </td>
   </tr>
-
   </tbody>
 </table>
-
-
 </div>
 @endforeach
 @endsection
