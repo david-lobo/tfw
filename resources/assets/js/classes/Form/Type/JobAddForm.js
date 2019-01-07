@@ -2,7 +2,6 @@ import {UpdateForm} from '../UpdateForm';
 import {QuestionAddForm} from './QuestionAddForm';
 import {ClientAddForm} from './ClientAddForm';
 import {AccountManagerAddForm} from './AccountManagerAddForm';
-//import {AdminPage} from '../../../app.js';
 
 export class JobAddForm extends UpdateForm {
     constructor(endpoint) {
@@ -42,8 +41,6 @@ export class JobAddForm extends UpdateForm {
                 label: 'Client',
                 data_source: 'clients',
                 options: function(success) {
-                    console.log('JobAddForm.options', config.clients)
-
                     if (config.hasOwnProperty('clients')) {
                         if(config.clients.length > 0) {
                             success();
@@ -59,8 +56,6 @@ export class JobAddForm extends UpdateForm {
                 label: 'Account Manager',
                 data_source: 'accountmanagers',
                 options: function(success) {
-                    console.log('JobAddForm.options', config.clients)
-
                     if (config.hasOwnProperty('accountmanagers')) {
                         if(config.accountmanagers.length > 0) {
                             success();
@@ -70,7 +65,6 @@ export class JobAddForm extends UpdateForm {
                     AccountManagerAddForm.loadAllAccountManagers(success);                                     
                 }
             }
-
         ];
     }
 }

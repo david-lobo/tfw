@@ -2,7 +2,6 @@ import {UpdateForm} from '../UpdateForm';
 
 export class ClientAddForm extends UpdateForm {
     constructor(endpoint) {
-        
         super('#addDialog', 'client', endpoint, 'POST', ClientAddForm.getFields());
     }
 
@@ -18,7 +17,6 @@ export class ClientAddForm extends UpdateForm {
     }
 
     static categoriesToOptions(categories) {
-        console.log('categoriesToOptions', categories);
         let options = [];
         $(categories).each(function(i, v) {
             let option = {
@@ -31,8 +29,6 @@ export class ClientAddForm extends UpdateForm {
     }
 
     static getCategoryOptions() {
-        console.log('getCategoryOptions', config.categories);
-
         return ClientAddForm.categoriesToOptions(config.categories);
     }
 

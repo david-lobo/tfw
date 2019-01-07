@@ -37,10 +37,10 @@ class Question extends Model
         return $this->hasMany('App\Check');
     }
 
-    public function jobs()
+    /*public function jobs()
     {
         return $this->hasMany('App\Job');
-    }
+    }*/
 
     public static function subquestions($question)
     {

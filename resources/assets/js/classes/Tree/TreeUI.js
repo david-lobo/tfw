@@ -79,9 +79,6 @@ export class TreeUI {
         this.bindSelect();
         this.bindUnselect();
         this.bindExpand();
-
-        console.log('config', config);
-
         this.bindButtons();
     }
 
@@ -95,7 +92,8 @@ export class TreeUI {
     }
 
     errorCallback(entity) {
-        var $widget = this;
+        let $widget = this;
+
         return function (response) {
             if (response && response.statusText && response.statusText !== 'abort') {
                 toastr.error(response.statusText);
@@ -109,7 +107,6 @@ export class TreeUI {
             treeUI = config.page.getTrees()[entity];
             tree = treeUI.getTree();
             selectedId = treeUI.getSelectedId();
-            //tree.expandAll();
 
             if (selectedId && selectedId != 0) {
                 let node = tree.getNodeById(selectedId);
@@ -121,28 +118,11 @@ export class TreeUI {
                 }
             }
 
-            console.log('expanded', treeUI.expanded);
-
             for (let key of Object.keys(treeUI.expanded)) {  
               let mealName = treeUI.expanded[key];
-              // ... do something with mealName
-              console.log(key);
               let node = tree.getNodeById(key);
               tree.expand(node);
             }
-
-            /*let lastQueryUrl = treeUI.getLastQueryUrl();
-            const etag = treeUI.getETag();
-
-            if (etag !== null && etag !== jqXHR.getResponseHeader('ETag')) {
-                if (lastQueryUrl != null && lastQueryUrl == this.url) {
-                    let prefix = entity.charAt(0).toUpperCase() + entity.substr(1);
-                    //toastr.info(prefix + ' has changed');
-                }
-            }
-
-            treeUI.setETag(jqXHR.getResponseHeader('ETag'));
-            treeUI.setLastQueryUrl(this.url);*/
         }
     }
 
@@ -150,27 +130,20 @@ export class TreeUI {
         return function (e, node, id) {
             let treeUI, tree;
             treeUI = config.page.getTrees()[entity];
-            console.log(treeUI);
             tree = treeUI.getTree();
             treeUI.setSelectedId(id);
 
             if (treeUI.getSelectedId() !== 0) {
                 treeUI.setSelectedEntity(tree.getDataById(treeUI.getSelectedId()));
-
-                console.log('selectCallback', treeUI.getSelectedEntity());
-
                 $('.' + entity + ' .btn.edit, .' + entity + ' .btn.delete').prop('disabled', false);
-                /*if (entity == 'category') {
-                    let itemTreeUI = config.page.getTrees()['item'];
-                    itemTreeUI.reload();
-                }*/
             }
         }
     }
 
     unselectCallback(entity) {
         return function (e, node, id) {
-            let treeUI, tree;
+            let treeUI, tree,itemTreeUI;
+
             treeUI = config.page.getTrees()[entity];
             tree = treeUI.getTree();
             treeUI.setSelectedId(0);
@@ -179,7 +152,7 @@ export class TreeUI {
             $('.' + entity + '.btn.edit, .' + entity + ' .btn.delete').prop('disabled', true);
 
             if (entity == 'category') {
-                let itemTreeUI = config.page.getTrees()['item'];
+                itemTreeUI = config.page.getTrees()['item'];
                 itemTreeUI.reload();
             }
         }
@@ -187,20 +160,15 @@ export class TreeUI {
 
     expandCallback(entity) {
         return function (e, node, id) {
-            //console.log('expand', e, node, id);
-
             let treeUI, tree;
             treeUI = config.page.getTrees()[entity];
             tree = treeUI.getTree();
-
             treeUI.expanded[id] = true;
         }
     }
 
     collapseCallback(entity) {
-        return function (e, node, id) {
-            //console.log('collapse', e, node, id);
-            
+        return function (e, node, id) {            
             let treeUI, tree;
             treeUI = app.page.getTrees()[entity];
             tree = treeUI.getTree();

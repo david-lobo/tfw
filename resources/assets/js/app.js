@@ -308,10 +308,12 @@ class CheckPage extends ListPage {
     }
 
     initFilters() {
-        let departments, dropdownId;
+        let departments, dropdownId, hideColumn;
         
         departments = CheckAddForm.getDepartmentOptions();
         dropdownId = '#departmentDropdown';
+
+        departments.unshift({value: '0', label: 'All'});
 
         $(departments).each(function(i, v) {
             let option = document.createElement('option');
@@ -324,8 +326,28 @@ class CheckPage extends ListPage {
         config.selectedDepartment = $(dropdownId).val();
 
         $(dropdownId).on('changed.bs.select', function (e, clickedIndex, isSelected, previousValue) {
-          config.selectedDepartment = $(dropdownId).val();
-          config.page.grids['check'].reload();
+            config.selectedDepartment = $(dropdownId).val();
+          
+            if (config.selectedDepartment === '0') {
+                hideColumn = 'priority';
+                config.page.grids['check'].destroyGrid();
+                config.page.grids['check'].gridConfig.rowReorder = false;
+                config.page.grids['check'].createGrid();
+            } else {
+                if (config.page.grids['check'].gridConfig.rowReorder === false) {
+                    config.page.grids['check'].destroyGrid();
+                    config.page.grids['check'].gridConfig.autoLoad = false;
+                    config.page.grids['check'].gridConfig.rowReorder = true;
+                    config.page.grids['check'].createGrid();
+                }
+            }
+
+            config.page.grids['check'].reload();
+            if (config.selectedDepartment === '0') {
+                config.page.grids['check'].grid.hideColumn('priority');
+            } else {
+                config.page.grids['check'].grid.showColumn('priority');
+            }
         });
     }
 }
@@ -483,6 +505,7 @@ class GridUI {
         this.expanded = {};
         this.dialog = null;
         this.records;
+        this.gridConfig = null;
     }
 
     getGrid() {
@@ -534,11 +557,21 @@ class GridUI {
         this.lastQueryUrl = url;
     }
 
-    init() {
-        let gridConfig, addForm, fn, data;
+    createGrid() {
+        let gridConfig;
         gridConfig = this.getGridConfig();
         this.grid = this.el.grid(gridConfig);
+    }
 
+    destroyGrid() {
+        this.el.grid('destroy', true, true);
+    }
+
+    init() {
+        let gridConfig, addForm, fn, data;
+        //gridConfig = this.getGridConfig();
+        //this.grid = this.el.grid(gridConfig);
+        this.createGrid();
         if (undefined !== config.page.forms && undefined !== config.page.forms['add']) {
             addForm = config.page.forms['add'];
             fn = addForm.showModal()
@@ -585,11 +618,11 @@ class GridUI {
         }
     }
 
-    rowDataChangedCallback(entity) {
+    /*rowDataChangedCallback(entity) {
         return function (e, $row, id, record) {
             //
         }
-    }
+    }*/
 
     bindSelect() {
         this.grid.on('rowSelect', this.selectCallback(this.entity));
@@ -603,6 +636,11 @@ class GridUI {
 class CheckGrid extends GridUI {
     constructor(el, entity, url) {
         super(el, entity, url);
+    }
+
+    init() {
+        super.init();
+        this.grid.reload();
     }
 
     reloadQuery() {
@@ -620,7 +658,7 @@ class CheckGrid extends GridUI {
             conf.url = conf.url.replace('ID', config.question.id);
         }
 
-        if (config.hasOwnProperty('selectedDepartment')) {
+        if (config.hasOwnProperty('selectedDepartment') && config.selectedDepartment != 0) {
             if (!conf.hasOwnProperty('data')) {
                 conf.data = {department: config.selectedDepartment};
             }
@@ -629,15 +667,21 @@ class CheckGrid extends GridUI {
     }
 
     getGridConfig() {
+
         let deleteForm = config.page.forms['delete'];
         let updateForm = config.page.forms['update'];
 
-        return {
-            primaryKey: 'id',
+        if (this.gridConfig !== null) {
+            return this.gridConfig;
+        }
+
+        this.gridConfig =  {
+            //primaryKey: 'id',
             uiLibrary: 'bootstrap4',
             dataSource: this.getAJAXConfig(),
             selectionMethod: 'basic',
-            rowReorder: true,
+            rowReorder: false,
+            autoLoad: false,
             rowReorderColumn: 'id',
             orderNumberField: 'priority',
             initialized: function(e) {
@@ -652,6 +696,9 @@ class CheckGrid extends GridUI {
                 events: {
                     'mousedown': function (e) {
                         e.stopPropagation();
+                        if (config.page.grids['check'].gridConfig.rowReorder === false) {
+                            return false;
+                        }
                         $(e.currentTarget).parent().attr('data-drag-status', 'mousedown');
                      },
                     'mouseup': function (e) {
@@ -659,6 +706,9 @@ class CheckGrid extends GridUI {
                      },
                     'mouseleave': function (e) {
                         e.stopPropagation();
+                        if (config.page.grids['check'].gridConfig.rowReorder === false) {
+                            return false;
+                        }
                         let currentStatus, data, post, record;
                         currentStatus = $(e.currentTarget).parent().attr('data-drag-status');
                         if (currentStatus === 'mousedown') {                        
@@ -666,26 +716,30 @@ class CheckGrid extends GridUI {
                         } else if (currentStatus === 'mouseleave') {
                             $(e.currentTarget).parent().removeAttr('data-drag-status');
                             data = config.page.grids['check'].grid.getAll();
-                            post = [];
-                            $(data).each(function(i, v) {
-                                record = {};
-                                record.name = 'checks[' + v.id + ']';
-                                record.value = v.priority;
-                                post.push(record);
-                            });
-                            CheckGrid.postCheckReorders(post);
+                            if (data.length > 1) {
+                                post = [];
+                                $(data).each(function(i, v) {
+                                    record = {};
+                                    record.name = 'checks[' + v.id + ']';
+                                    record.value = v.priority;
+                                    post.push(record);
+                                });
+                                CheckGrid.postCheckReorders(post);
+                            }
                         }
                     }
                 }
             },
             { field: 'content', title: 'Content' },
-            { field: 'priority', title: 'Priority' },
+            { field: 'priority', title: 'Priority', hidden: true },
             { field: 'answer', title: 'Answer', renderer: function (value, record) { return record.answer === 1 ? 'Yes' : 'No'; }},
             { field: 'department', title: 'Department', renderer: function (value, record) { return record.department.title; }},
             { title: '', field: 'Edit', width: 42, type: 'icon', icon: 'fa fa-pencil', tooltip: 'Edit', events: { 'click': updateForm.showModal() } },
             { title: '', field: 'Delete', width: 42, type: 'icon', icon: 'fa fa-remove', tooltip: 'Delete', events: { 'click': deleteForm.showModal() } }
             ]
         }
+
+        return this.gridConfig;
     }
 
     static postCheckReorders(data) {
@@ -888,6 +942,7 @@ class JobGrid extends GridUI {
 
     getGridConfig() {
         let deleteForm, updateForm;
+
         deleteForm = config.page.forms['delete'];
         updateForm = config.page.forms['update'];
 
@@ -942,21 +997,29 @@ class QuestionSelectGrid extends GridUI {
 
     reloadCallback(entity) {
         return function (jqXHR, textStatus) {
-            let rows, qRow;
-            if (config.job.question !== null) {
-                rows = $('table#questionGrid tr');
+            let rows, qRow, ids;
 
-                qRow = rows.filter(function () {
-                    return $(this).children(':eq(0)').text() == config.job.question.id;
-                })
+            ids = {};
+           
+            $(config.job.answers).each(function(i, v) {
+                ids[v.question.id] = true;
+            });
 
-                $(qRow).find('button').removeClass('btn-primary').addClass('btn-success').prop( "disabled", true );
-            }
+            rows = $('table#questionGrid tr');
+
+            qRow = rows.filter(function () {
+                return ids.hasOwnProperty($(this).children(':eq(0)').text());
+            })
+
+            $(qRow).find('button.btn-primary').removeClass('btn-primary').addClass('btn-success').html('Select');//.prop( "disabled", true );
+            $(qRow).find('button.btn-danger').show();
+            $(qRow).find('.completed .fa-times').removeClass('fa-times').addClass('fa-check');
         }
     }
 
     getGridConfig() {
         let ajaxConfig, url, categoryUrl; 
+
         ajaxConfig = this.getAJAXConfig();
         url = ajaxConfig.url;
         categoryUrl = url += '?category_id=' + config.job.category.id;
@@ -971,7 +1034,9 @@ class QuestionSelectGrid extends GridUI {
             columns: [
                     { field: 'id', title: 'Id', width: 56, sortable: true, filterable: true },
                     { field: 'content', title: 'Content', sortable: true, filterable: true },
-                    { title: '', field: 'Yes', filterable: false, width: 100, tmpl: '<button class="btn btn-primary">Select</button>', tooltip: 'Select', events: { 'click': this.questionSelected() } },
+                    { title: 'Completed', field: 'Completed', width: 150, filterable: false, align: 'center', cssClass: 'completed', tmpl: '<span class="fa fa-times"></span>'  },
+                    { title: '', field: 'Select', filterable: false, width: 100, tmpl: '<button class="btn btn-primary">Select</button>', tooltip: 'Select', events: { 'click': this.questionSelected() }},
+                    { title: '', field: 'Reset', filterable: false, width: 100, tmpl: '<button class="btn btn-danger" style="display:none;">Reset</button>', tooltip: 'Reset', events: { 'click': this.questionReset() }},
                 ],
             pager: { limit: 3, sizes: [2, 5, 10, 20] },
             paramNames: {limit: 'limit', page: 'page'},
@@ -981,19 +1046,96 @@ class QuestionSelectGrid extends GridUI {
 
     questionSelected(event) {
         let that = this;
-        return function (event) {
-            if ($(event.target).hasClass('btn-success')) {
-                return false;
-            }
 
+        return function (event) {
             $.get(that.url + '/' + event.data.record.id, function (data) {
                 config.questions[event.data.record.id] = data.data;
-                config.page.checklist = new CheckList(data.data, config.routes);
+                config.page.checklist = new CheckList(data.data, config.job.answers, config.routes);
                 config.page.checklist.init();
             });
         }
     }
+    questionReset(event) {
+        let that = this;
+
+        return function (event) {
+            let fields, question, job, html, template, newEl, dialog;
+            
+            fields = [];
+            question = {name: 'question_id', value:  event.data.record.id};
+            job = {name: 'job_id', value: config.job.id};
+            fields.push(question);
+            fields.push(job);
+
+            $("#checklistDialog").remove();
+
+            template = $('#mustacheTemplate_checklist_dialog').html();
+            html = Mustache.to_html(template, {
+                question: event.data.record
+            });
+            newEl = $(html);
+            $(newEl).attr('id', 'checklistDialog');
+            $("#main > .container").append(newEl);
+
+            dialog = $("#checklistDialog").dialog();
+            dialog.find('.btn-confirm').off('click');
+            dialog.find('.btn-confirm').on('click', function() {
+                dialog.close();
+
+                $.ajax({
+                    url: config.routes['jobs.answers.update'],
+                    type: 'DELETE',
+                    data: fields,
+                    success: function(data) {
+                        config.page.getJob();
+                        config.page.getChecklist(true);
+                        toastr.success(data.message);
+                    },
+                    error: function(response) {
+                        let json, msg;
+
+                        json = response.responseJSON;
+                        msg = 'There was an error';
+                        if (json.hasOwnProperty('data') && json.data.hasOwnProperty('questions')) {
+                            msg = json['data']['questions'][0];
+                        } else if (response && response.statusText && response.statusText !== 'abort') {
+                            msg = response.statusText;
+                        }
+                        toastr.error(msg);
+                    }
+                });
+            });
+        }
+    }
 } 
+
+class AnswerGrid extends GridUI {
+    constructor(el, entity, url) {
+        super(el, entity, url);
+    }
+
+    reloadQuery() {
+        return super.reloadQuery();
+    }
+
+    getGridConfig() {
+        return {
+            primaryKey: 'id',
+            uiLibrary: 'bootstrap4',
+            dataSource: this.getAJAXConfig(),
+            selectionMethod: 'basic',
+            columns: [
+                    { field: 'question_id', title: 'Id', width: 56, sortable: false, filterable: false, renderer: function (value, record) { return record.question.id; } },
+                    { field: 'question_title', title: 'Question', filterable: false, renderer: function (value, record) { return record.question.content; }},
+                    { field: 'question_answer', title: 'Answer', filterable: false, renderer: function (value, record) { return record.answer === 0 ? 'No' : 'Yes'; }},
+                    { field: 'question_parent', title: 'Parent Id', filterable: false, renderer: function (value, record) { return record.question.parent_id; }},
+                ],
+            pager: { limit: 5, sizes: [2, 5, 10, 20] },
+            paramNames: {limit: 'limit', page: 'page'},
+            mapping: {totalRecordsField: 'total', dataField: 'data'}
+        }
+    }
+}
 
 class ChecklistPage {
     constructor(endpoints, job) {
@@ -1005,11 +1147,18 @@ class ChecklistPage {
     }
 
     init() {
+        let questionGrid, answerGrid, that;
+
         this.bindEvents()
-        let grid = new QuestionSelectGrid($('#questionGrid'), 'question', config.routes.question);
-        grid.init();
-        this.grids['checklist'] = grid;
-        let that = this;
+        questionGrid = new QuestionSelectGrid($('#questionGrid'), 'question', config.routes.question);
+        questionGrid.init();
+        this.grids['checklist'] = questionGrid;
+
+        answerGrid = new AnswerGrid($('#answerGrid'), 'answer', config.routes['jobs.answers'].replace('ID', this.job.id));
+        answerGrid.init();
+        this.grids['answer'] = answerGrid;
+
+        that = this;
         that.loadAllDepartments(function() {
             that.getJob();
             that.getChecklist(true);
@@ -1095,7 +1244,7 @@ class ChecklistPage {
 
     bindNotesButtons(that) {
         $("#accordion form").submit(function(event) {
-            let form;
+            let form, noteId, method, fields, url;
 
             event.preventDefault();
             form = $(this),
@@ -1213,20 +1362,7 @@ class ChecklistPage {
             $(elem).attr('class', 'alert alert-info').attr('role', 'alert').html(msg);
             $('.summary').html(elem);
         } else {
-            $(config.job.answers).each(function(i, v) {
-                itemTitle = document.createElement('dt');
-                itemValue = document.createElement('dd');
-                titleClass = "col-4";
-                valueClass = "col-8";
-
-                $(itemTitle).html(v.question.content).attr('class', titleClass);
-                $(itemValue).html(v.answer === 0 ? 'No' : 'Yes').attr('class', valueClass);
-
-                $(list).append(itemTitle);
-                $(list).append(itemValue);
-            });
-            $(".summary").empty();
-            $(".summary").append(list);
+            this.grids['answer'].reload();
         }
     }
 
@@ -1286,13 +1422,23 @@ class ChecklistPage {
 } 
 
 class CheckList {
-    constructor(question, endpoints) {
+    constructor(question, answers, endpoints) {
         this.question = question;
         this.endpoints = endpoints;
+        this.answers = answers;
+        this.indexedAnswers = {};
     }
 
     init() {
+        this.indexAnswers();
         this.initSteps();
+    }
+
+    indexAnswers() {
+        let that = this;
+        $(this.answers).each(function(i, v) {
+            that.indexedAnswers[v.question.id] = v;
+        });
     }
 
     initSteps() {
@@ -1300,7 +1446,7 @@ class CheckList {
         this.buildTemplate();
         config = this.getConfig();
         $('#smartwizard').smartWizard(config);
-        $('#editTab li:nth-child(2) a').tab('show');
+        $('#stepsModal').modal('show');
 
         $("#smartwizard").on("leaveStep", function(e, anchorObject, stepNumber, stepDirection) {
             let elmFormId;
@@ -1311,10 +1457,6 @@ class CheckList {
 
             return true;
         });
-    }
-
-    clearTemplates() {
-        //
     }
 
     static validateChecklistRadio(elmFormId) {
@@ -1332,7 +1474,7 @@ class CheckList {
     }
 
     buildTemplate() {
-        let wrapper, q, subquestions, list, html, newEl, content, stepId, stepTitle, stepDescription, template;
+        let wrapper, q, subquestions, list, html, newEl, content, stepId, stepTitle, stepDescription, template, that, answer;
 
         $('.wizard').empty();
         q = Object.assign({}, this.question);
@@ -1340,8 +1482,9 @@ class CheckList {
         list =  document.createElement("ul");
         content = document.createElement('div');
         $(content).attr('class', 'checklist-steps');
-
+        that = this;
         $(subquestions).each(function(i, v) {
+            answer = that.indexedAnswers[v.id];
             stepId = 'step-' + (i + 1);
             stepTitle = 'Step ' + (i + 1);
             stepDescription = 'Answer yes or no';
@@ -1362,6 +1505,16 @@ class CheckList {
                 question_id: v.id
             });
             newEl = $(html);
+            if (answer !== undefined && answer.hasOwnProperty('answer')) {
+                if (answer.answer === 1) {
+                    newEl.find('.radio-yes').prop('checked', true);
+                    newEl.find('.radio-no').prop('checked', false);
+                } else {
+                    newEl.find('.radio-yes').prop('checked', false);
+                    newEl.find('.radio-no').prop('checked', true);
+                }
+                
+            }
             $(content).append(newEl);
         });
         wrapper =  document.createElement("div");
@@ -1374,7 +1527,6 @@ class CheckList {
         $.get(this.endpoints.question + '/' + this.question.id, function (data) {
             config.categories = data;
         });
-
     }
 
     checklistCompleted(data) {
@@ -1404,12 +1556,8 @@ class CheckList {
               success: function(data) {
                 config.page.getJob();
                 config.page.getChecklist(true);
-
                 toastr.success(data.message);
-
-                $('#collapseTwoCLA').collapse('hide');
-                $('#collapseOneCLA').collapse('show');
-                $('#viewTab li:nth-child(1) a').tab('show');
+                $('#stepsModal').modal('hide');
               },
               error: function(response) {
                 let json, msg;
@@ -1427,8 +1575,54 @@ class CheckList {
         }
     }
 
+    checklistReset(data) {
+        let that = this;
+        return function (data) {
+            let activeStep, activeStepId, valid, checklist, fields, question, job, dialog;
+            checklist = data.data.checklist;
+            fields = [];
+            question = {name: 'question_id', value: checklist.question.id};
+            job = {name: 'job_id', value: config.job.id};
+            fields.push(question);
+            fields.push(job);
+            dialog = $("#checklistDialog").dialog();
+            dialog.find('.btn-confirm').off('click');
+            dialog.find('.btn-confirm').on('click', function() {
+                dialog.close();
+                $.ajax({
+                  url: that.endpoints['jobs.answers.update'],
+                  type: 'DELETE',
+                  data: fields,
+                  success: function(data) {
+                    config.page.getJob();
+                    config.page.getChecklist(true);
+
+                    toastr.success(data.message);
+
+                    $('#collapseTwoCLA').collapse('hide');
+                    $('#collapseOneCLA').collapse('show');
+                    $('#viewTab li:nth-child(1) a').tab('show');
+                  },
+                  error: function(response) {
+                    let json, msg;
+
+                    json = response.responseJSON;
+                    msg = 'There was an error';
+                    if (json.hasOwnProperty('data') && json.data.hasOwnProperty('questions')) {
+                        msg = json['data']['questions'][0];
+                    } else if (response && response.statusText && response.statusText !== 'abort') {
+                        msg = response.statusText;
+                    }
+                    toastr.error(msg);
+                  }
+                });
+            });
+        }
+    }
+
     getConfig() {
         let that = this;
+
         return {
             selected: 0,  // Initial selected step, 0 = first step 
             keyNavigation:true, // Enable/Disable keyboard navigation(left and right keys are used if enabled)
@@ -1447,15 +1641,17 @@ class CheckList {
                 showNextButton: true, // show/hide a Next button
                 showPreviousButton: true, // show/hide a Previous button
                 toolbarExtraButtons: [
-                    $('<button></button>').text('Finish')
+                    $('<button></button>').text('Cancel')
+                        .addClass('btn btn-secondary')
+                        .on('click', function() { 
+                            $('#stepsModal').modal('hide');
+                        }),
+                    $('<button></button>').text('Save')
                         .addClass('btn btn-info')
                         .on('click', {test: '123', checklist: that}, this.checklistCompleted()),
-                    $('<button></button>').text('Cancel')
+                    /*$('<button></button>').text('Reset')
                         .addClass('btn btn-danger')
-                        .on('click', function() { 
-                            $('#editTab li:nth-child(1) a').tab('show');      
-                            $('.wizard').html('<div class="alert alert-warning" role="alert">Please choose a main question first</div>');
-                        })
+                        .on('click', {test: '123', checklist: that}, this.checklistReset()),*/
                 ]
             }, 
             anchorSettings: {

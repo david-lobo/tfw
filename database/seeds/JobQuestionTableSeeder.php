@@ -17,9 +17,12 @@ class JobQuestionTableSeeder extends Seeder
 
         $job1 = Job::where('code', '=', 'LOBOA4ENV01')->firstOrFail();
         $job2 = Job::where('code', '=', 'LOBOBOX01')->firstOrFail();
-        $job2 = Job::where('code', '=', 'LOBOPACK01')->firstOrFail();
+        $job3 = Job::where('code', '=', 'LOBOPACK01')->firstOrFail();
 
-        $subquestions = Question::subquestions($job1->question);
+        $isJobDieCut = Question::where('alias', '=', str_slug('Is the job die cut?'))->firstOrFail();
+        $isJobCustom = Question::where('alias', '=', str_slug('Is the job lithographically printed?'))->firstOrFail();
+
+        $subquestions = Question::subquestionsWithQuestion($isJobDieCut);
 
         $answer = 0;
 
@@ -28,7 +31,7 @@ class JobQuestionTableSeeder extends Seeder
             $answer = $answer === 1 ? 0 : 1;
             $subquestion->jobAnswers()->sync(
                 [
-                    $job1->id => [
+                    $job3->id => [
                         'answer' => $answer,
                         'created_at' => \Carbon\Carbon::now()->toDateTimeString(),
                         'updated_at' => \Carbon\Carbon::now()->toDateTimeString()

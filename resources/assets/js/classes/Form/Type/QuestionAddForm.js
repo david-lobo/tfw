@@ -7,12 +7,9 @@ export class QuestionAddForm extends UpdateForm {
 
     initDialog() {
         super.initDialog();
-
-        //let dropdown = $(this.selector).find('.answer-select').selectpicker({width: '100%'});
     }
 
     static getCategoryOptions() {
-    	console.log('getCategoryOptions', config.categories);
     	let options = [];
     	$(config.categories).each(function(i, v) {
     		let option = {
@@ -47,6 +44,4 @@ export class QuestionAddForm extends UpdateForm {
             }
         ];
     }
-
-
 }

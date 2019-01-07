@@ -18,7 +18,7 @@ class Job extends Model
         'code',
         'title',
         'checks',
-        'question',
+        //'question',
         'notes',
         'category',
         'client',
@@ -27,7 +27,7 @@ class Job extends Model
     ];
 
     protected $with = [
-        'question',
+        //'question',
         'notes',
         'category',
         'accountManager',
@@ -43,10 +43,10 @@ class Job extends Model
         return $this->belongsToMany('App\Question')->withPivot('answer')->withTimestamps();
     }
 
-    public function question()
+    /*public function question()
     {
         return $this->belongsTo('App\Question');
-    }
+    }*/
 
     public function category()
     {
@@ -68,20 +68,23 @@ class Job extends Model
         return $this->hasMany(Note::class);
     }
 
-    public static function answers(Job $job, Question $question = null)
+    public static function answers(Job $job, $numRecords = 1000)
     {
-        if (is_null($question)) {
+        /*if (is_null($question)) {
             $question = $job->question;
-        }
+        }*/
 
-        $questionIds = [];
+        /*$questionIds = [];
 
         if (!is_null($question)) {
             $questions = Question::subquestionsWithQuestion($question);
             $questionIds = collect($questions)->pluck('id')->toArray();
         }
 
-        $answers = $job->questionAnswers()->whereIn('question_id', $questionIds)->orderBy('id')->get();
+        $answers = $job->questionAnswers()->whereIn('question_id', $questionIds)->orderBy('id')->get();*/
+
+        $answers = $job->questionAnswers()->orderBy('id')->paginate($numRecords);
+
         $result = $job->toArray();
         $records = [];
         foreach ($answers as $key => $value) {
@@ -93,6 +96,13 @@ class Job extends Model
             $records[] = $pivot;
         }
 
-        return $records;
+        //var_dump(count($records));
+        //die();
+        //
+
+
+        $r = $answers->toArray();
+        $r['data'] = $records;
+        return $r;
     }
 }

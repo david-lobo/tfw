@@ -43,9 +43,12 @@
                   <div class="details">
                   </div>
                 </div>
-                <div class="tab-pane fade show mt-3 col-xl-6 pl-0" id="answers" role="tabpanel" aria-labelledby="answersTab">
+                <div class="tab-pane fade show mt-3 col-xl-12 pl-0" id="answers" role="tabpanel" aria-labelledby="answersTab">
                   <div class="summary">
                   </div>
+
+                  <table id="answerGrid">
+                  </table>
                 </div>
                 <div class="tab-pane fade mt-3 col-xl-6 pl-0" id="notes" role="tabpanel" aria-labelledby="notesTab">
                   <div id="accordion">
@@ -73,21 +76,21 @@
                 <li class="nav-item">
                   <a class="nav-link active" id="mainQuestionsTab" data-toggle="tab" href="#mainQuestions" role="tab" aria-controls="mainQuestions" aria-selected="true">Main Questions</a>
                 </li>
-                <li class="nav-item">
+                <!--<li class="nav-item">
                   <a class="nav-link" id="subQuestionsTab" data-toggle="tab" href="#subQuestions" role="tab" aria-controls="subQuestions" aria-selected="false">Sub-Questions</a>
-                </li>
+                </li>-->
               </ul>
               <div class="tab-content mt-3" id="editTabContent">
                 <div class="tab-pane fade show active" id="mainQuestions" role="tabpanel" aria-labelledby="mainQuestionsTab">
                   <table id="questionGrid"></table>
                 </div>
-                <div class="tab-pane fade mt-3" id="subQuestions" role="tabpanel" aria-labelledby="subQuestionsTab">
-                  <div class="wizard">
+                <!--<div class="tab-pane fade mt-3" id="subQuestions" role="tabpanel" aria-labelledby="subQuestionsTab">
+                  <div class="wizardOLD">
                     <div class="alert alert-warning" role="alert">
                       Please choose a main question first
                     </div>
                   </div>
-                </div>
+                </div>-->
               </div>
             </div>
           </div>
@@ -95,13 +98,54 @@
       </div>
     </div>
   </div>
-  <hr class="my-5">
-  <div class="row">
-    <div class="col-12">
+</div>
+
+<!-- Button trigger modal -->
+<button type="button" class="btn btn-primary d-none" data-toggle="modal" data-target="#stepsModal">
+  Launch Steps Modal
+</button>
+
+<!-- Modal -->
+<div class="modal fade" id="stepsModal" tabindex="-1" role="dialog" aria-labelledby="stepsModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="stepsModalLabel">Questions</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="wizard"></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary d-none" data-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary d-none">Save changes</button>
+      </div>
     </div>
   </div>
 </div>
+
 @verbatim
+<script id="mustacheTemplate_checklist_dialog" type="text/template">
+    <div data-ui-library="bootstrap" data-resizable="true" data-min-width="200" data-max-width="600" data-min-height="200" data-max-height="450" data-width="450" data-height="250" data-modal="true">
+        <div data-role="header" class="modal-header">
+            <h5 data-role="title" class="modal-title">Reset Question {{ question.id }}</h5>
+            <button data-role="close" type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div data-role="body">
+          Clear all answers to the question <strong>&quot;{{ question.content }}&quot;</strong> and <strong>all subquestions</strong>.  Are you sure?
+        </div>
+        <div data-role="footer">
+            <button class="btn btn-confirm btn-danger">Confirm</button>
+            <button class="btn btn-secondary" data-role="close">Cancel</button>
+
+        </div>
+    </div>
+</script>
+
 <script id="mustacheTemplate_wizard_item" type="text/template">
 <li><a href="#{{step_id}}">{{step_title}}<br /><small>{{step_description}}</small></a></li>
 </script>
@@ -109,11 +153,11 @@
 <div id="{{step_id}}" class="">
     <p>{{step_content}}</p>
     <div class="form-check form-check-inline">
-  <input class="form-check-input" type="radio" name="questions[{{question_id}}]" id="inlineRadio1" value="1">
+  <input class="form-check-input radio-yes" type="radio" name="questions[{{question_id}}]" id="inlineRadio1" value="1">
   <label class="form-check-label" for="inlineRadio1">Yes</label>
 </div>
 <div class="form-check form-check-inline">
-  <input class="form-check-input" type="radio" name="questions[{{question_id}}]" id="inlineRadio2" value="0">
+  <input class="form-check-input radio-no" type="radio" name="questions[{{question_id}}]" id="inlineRadio2" value="0">
   <label class="form-check-label" for="inlineRadio2">No</label>
 </div>
 <div class="invalid-feedback">

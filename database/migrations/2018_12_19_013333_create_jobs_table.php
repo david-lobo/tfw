@@ -18,7 +18,7 @@ class CreateJobsTable extends Migration
             $table->string('code');
             $table->string('title');
 
-            $table->integer('question_id')->unsigned()->nullable();
+            //$table->integer('question_id')->unsigned()->nullable();
             $table->integer('category_id')->unsigned();
             $table->integer('client_id')->unsigned();
             $table->integer('account_manager_id')->unsigned();
@@ -27,7 +27,7 @@ class CreateJobsTable extends Migration
 
             $table->foreign('account_manager_id')->references('id')->on('account_managers')->onDelete('cascade');
 
-            $table->foreign('question_id')->references('id')->on('questions')->onDelete('cascade');
+            //$table->foreign('question_id')->references('id')->on('questions')->onDelete('cascade');
 
             $table->foreign('category_id')->references('id')->on('categories')->onDelete('cascade');
 

@@ -25,12 +25,26 @@ class ChecklistService
 
     public function getChecks(Job $job): array
     {
+        $allQuestionIds = [];
         $jobId = $job->id;
-        $questions = Question::subquestionsWithQuestion($job->question);
-        $questionIds = collect($questions)->pluck('id')->toArray();
-        $grouped = $this->getChecksGrouped($jobId, $questionIds);
+
+        $mainQuestions = $job->questionAnswers()->where('parent_id', null)->get();
+        //dd($x->where('parent_id', null)->get()->toArray());
+        //dd($mainQuestions)
+
+        foreach ($mainQuestions as $key => $value) {
+            $questions = Question::subquestionsWithQuestion($value);
+            $questionIds = collect($questions)->pluck('id')->toArray();
+            $allQuestionIds = array_merge($allQuestionIds, $questionIds);
+            //dd($questionIds);
+        }
+
+        //dd($allQuestionIds);
+
+        $grouped = $this->getChecksGrouped($jobId, $allQuestionIds);
 
         //dd($query->toSQL());
+        //dd($grouped);
         //dd($grouped);
 
         return $grouped;
@@ -53,6 +67,7 @@ class ChecklistService
         ->whereIn('c.question_id', $questionId)
         ->where('jq.job_id', '=', $jobId)
         ->orderBy('c.priority', 'asc');
+        //dd($query->toSQL(), $questionId);
 
         $results = $query->pluck('id')->toArray();
         $checks = Check::find($results)->toArray();

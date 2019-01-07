@@ -12,50 +12,36 @@ export class QuestionTree extends TreeUI {
     }
 
     bindButtons() {
-        console.log('QuestionTree.bindButtons 1.1');
+        let addForm, fn, that, callback, data;
 
-        let addForm = config.page.forms['add'];
-
-        let fn = addForm.showModal();
-        let that = this;
-        let callback = function(event) {
-            let treeUI, tree, parentId, entity;
+        addForm = config.page.forms['add'];
+        fn = addForm.showModal();
+        that = this;
+        callback = function(event) {
+            let data, treeUI, tree, parentId, entity, target, action, newURL, form, fn, record;
 
             parentId = config.question.id;
-
             treeUI = config.page.getTrees()['question'];
-            console.log(treeUI);
             tree = treeUI.getTree();
-            //treeUI.setSelectedId(id);
-
-            console.log('QuestionTree.bindButtons 1.2');
 
             if (treeUI.getSelectedId() !== 0) {
-                console.log('QuestionTree.bindButtons 1.3');
-                //treeUI.setSelectedEntity(tree.getDataById(treeUI.getSelectedId()));
                 entity = treeUI.getSelectedEntity();
                 parentId = entity.id;
 
-                var target = $( event.target );
+                target = $( event.target );
                 if (target.is("i")) {
                     target = target.parent();
                 }
 
-                let action = target.attr('data-action');
-                console.log('QuestionTree.bindButtons 1.3.1', action, event.target, event);
+                action = target.attr('data-action');
                 if (undefined !== action) {
-                    console.log('QuestionTree.bindButtons 1.4', action);
-
                     if ('check' === action) {
-                        //var newURL = window.location.protocol + "//" + window.location.host + "/" + window.location.pathname;
-                        let newURL = config.routes.checks + '/' + entity.id;
-                        console.log('newURL', newURL);
+                        newURL = config.routes.checks + '/' + entity.id;
                         window.location = newURL;
                     } else if (config.page.forms.hasOwnProperty(action)) {
-                    
-                        let form = config.page.forms[action];
-                        let fn = form.showModal();
-                        let record = {};
+                        form = config.page.forms[action];
+                        fn = form.showModal();
+                        record = {};
 
                         if ('add' === action) {
                             record = {parent_id: parentId};
@@ -65,21 +51,13 @@ export class QuestionTree extends TreeUI {
 
                         fn({data: {record: record}});
                     }
-                    
                 }
-                 
-                console.log('forms', config.page.forms);
-                console.log('bindButtons Callback', action, treeUI.getSelectedEntity());
              }  
         };
 
-        //let data = {record: {parent_id: config.question.id}, callback: function() {console.log('test123');}};
-        //let callback = 'test123';
-
-        let data = {};
+        data = {};
 
         $('.toolbar button').on('click', data, callback);
-
     }
 
     reloadQuery() {
@@ -90,20 +68,12 @@ export class QuestionTree extends TreeUI {
         return function (e, node, id) {
             let treeUI, tree;
             treeUI = config.page.getTrees()[entity];
-            console.log(treeUI);
             tree = treeUI.getTree();
             treeUI.setSelectedId(id);
 
             if (treeUI.getSelectedId() !== 0) {
                 treeUI.setSelectedEntity(tree.getDataById(treeUI.getSelectedId()));
-
-                console.log('selectCallback', treeUI.getSelectedEntity());
                 QuestionTree.showToolbar(treeUI.getSelectedEntity());
-                //$('.' + entity + ' .btn.edit, .' + entity + ' .btn.delete').prop('disabled', false);
-                /*if (entity == 'category') {
-                    let itemTreeUI = config.page.getTrees()['item'];
-                    itemTreeUI.reload();
-                }*/
             }
         }
     }
@@ -116,8 +86,6 @@ export class QuestionTree extends TreeUI {
             treeUI.setSelectedId(0);
             treeUI.setSelectedEntity(null);
 
-            //$('.' + entity + '.btn.edit, .' + entity + ' .btn.delete').prop('disabled', true);
-
             QuestionTree.showToolbar(null);
         }
     }
@@ -128,12 +96,11 @@ export class QuestionTree extends TreeUI {
             return false;
         }
 
-        if (entity.parent_id == null) {
+        if (entity.parent_id == null && entity.childs.length !== 0) {
             $('.toolbar .btn').prop('disabled', true);
             $('.toolbar .check.btn').prop('disabled', false);
         } else {
             $('.toolbar .btn').prop('disabled', false);
         }
     }
-
 }

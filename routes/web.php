@@ -94,6 +94,8 @@ Route::group(['middleware' => ['auth', 'clearance']], function() {
 
     Route::put('d5-api/jobs/{id}/answers',['uses'=>'API\JobController@updateAnswers'])->name('jobs.answers.update');
 
+    Route::delete('d5-api/jobs/{id}/answers',['uses'=>'API\JobController@resetAnswers'])->name('jobs.answers.delete');
+
     Route::get('d5-api/jobs/{id}/answers',['uses'=>'API\JobController@listAnswers'])->name('jobs.answers.list');
 
     Route::get('d5-api/jobs/{id}/checklist',['uses'=>'API\JobController@checklist'])->name('jobs.checklist');

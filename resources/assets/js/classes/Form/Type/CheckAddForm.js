@@ -12,7 +12,6 @@ export class CheckAddForm extends UpdateForm {
     }
 
     static getDepartmentOptions() {
-        console.log('getDepartmentOptions', config.departments);
         let options = [];
         $(config.departments.data).each(function(i, v) {
             let option = {

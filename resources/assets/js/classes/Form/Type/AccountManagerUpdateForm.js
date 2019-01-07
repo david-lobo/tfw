@@ -8,6 +8,5 @@ export class AccountManagerUpdateForm extends UpdateForm {
 
     initDialog() {
         super.initDialog();
-        //let dropdown = $(this.selector).find('.answer-select').selectpicker({width: '100%'});
     }
 }

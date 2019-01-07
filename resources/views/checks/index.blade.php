@@ -8,11 +8,14 @@
         <div class="col-xs-12 col-md-12 checks">
             {{ Breadcrumbs::render('checks', $data['question']) }}
             <h3 class="my-3">Checks</h3>
+            <h5 class="my-3">{{ $data['question']['content'] }}</h5>
             <div class="row">
                 @can('Manage')
                 <div class="col-9 grid-filters">
+                    <!--<button class="gj-button-md" id="btnDestroy">Destroy</button>
+                    <button class="gj-button-md" id="btnCreate">Create</button>-->
                     <form class="form-inline">
-                         <select id="departmentDropdown" width="200"></select>
+                         <select id="departmentDropdown" width="200" style="display:none;"></select>
 
                         <!--<input id="txtName" type="text" placeholder="Name..." class="form-control mb-2 mr-sm-2 mb-sm-0" />
                             <input id="txtPlaceOfBirth" type="text" placeholder="Place Of Birth..." class="form-control mb-2 mr-sm-2 mb-sm-0" />

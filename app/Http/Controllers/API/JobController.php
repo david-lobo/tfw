@@ -44,12 +44,34 @@ class JobController extends APIBaseController
         $minutes = 0;
         $cacheId = 'jobs_' . $id;
         $answers = [];
-        if (!is_null($job->question())) {
-            $answers = Job::answers($job);
-        }
-        $result['answers'] = $answers;
+
+        $answers = Job::answers($job);
+
+        $result['answers'] = $answers['data'];
 
         return response($result, Response::HTTP_OK);
+    }
+
+    /**
+     * show resource
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Request
+     */
+    public function listAnswers(int $id)
+    {
+        $job = Job::findOrFail($id);
+
+        $minutes = 0;
+        $cacheId = 'jobs_answers' . $id;
+        $answers = [];
+
+        $answers = Job::answers($job, 5);
+        $result = $answers;
+
+        return response($answers, Response::HTTP_OK);
+
+       // return response($result, Response::HTTP_OK);
     }
 
     /**
@@ -167,7 +189,7 @@ class JobController extends APIBaseController
     public function updateAnswers(Request $request, $id)
     {
         $input = $request->all();
-        $job = Job::with('question')->findOrFail($id);
+        $job = Job::findOrFail($id);
         $question = Question::findOrFail($input['question_id']);
         $questions = Question::subquestionsWithQuestion($question);
 
@@ -196,7 +218,6 @@ class JobController extends APIBaseController
         }
 
         $questionIds = collect($questions)->pluck('id')->toArray();
-        $job->question_id = $input['question_id'];
         $toSync = [];
         $invalidAnswer = false;
 
@@ -219,7 +240,56 @@ class JobController extends APIBaseController
             ]);
         }
 
-        $job->questionAnswers()->sync($toSync);
+        $job->questionAnswers()->syncWithoutDetaching($toSync);
+        $job->save();
+
+        Cache::flush();
+
+        $result = $job->toArray();
+        $answers = [];
+
+        if (!is_null($job->question)) {
+            $answers = Job::answers($job);
+        }
+
+        $result['answers'] = $answers;
+
+        return $this->sendResponse($result, 'Job updated successfully.');
+    }
+
+
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function resetAnswers(Request $request, $id)
+    {
+        $input = $request->all();
+        $job = Job::findOrFail($id);
+        $question = Question::findOrFail($input['question_id']);
+        $questions = Question::subquestionsWithQuestion($question);
+
+        $validator = \Validator::make($input, [
+            'question_id' => 'Int|required|exists:questions,id'
+        ]);
+
+        if ($validator->fails()) {
+            return $this->sendError('Validation Error', $validator->errors());
+        }
+
+        if (!is_null($question->parent_id)) {
+            return $this->sendError('Validation Error', [
+                "Must be a parent question, subquestion selected"
+            ]);
+        }
+
+        $questionIds = collect($questions)->pluck('id')->toArray();
+        $toDetach = [];
+        $invalidAnswer = false;
+
+        $job->questionAnswers()->detach($questionIds);
         $job->save();
 
         Cache::flush();

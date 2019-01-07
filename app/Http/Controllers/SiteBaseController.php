@@ -47,6 +47,7 @@ abstract class SiteBaseController extends Controller
             'department' => route('departments.index', []),
             'job' => route('jobs.index', []),
             'jobs.show' => route('jobs.show', ['id' => 'ID']),
+            'jobs.answers' => route('jobs.answers.list', ['id' => 'ID']),
             'notes.index' => route('notes.index', []),
             'notes.update' => route('notes.update', ['id' => 'ID']),
             'question' => route('questions.index', []),

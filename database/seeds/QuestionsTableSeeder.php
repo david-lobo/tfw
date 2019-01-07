@@ -27,15 +27,78 @@ class QuestionsTableSeeder extends Seeder
                 'updated_at' => \Carbon\Carbon::now()->toDateTimeString()
             ),
             array(
-                'content'=> 'Is the job a custom process?',
-                'alias' => str_slug('Is the job a custom process'),
+                'content'=> 'Is the job lithographically printed?',
+                'alias' => str_slug('Is the job lithographically printed?'),
+                'category_id' => $category->id,
+                'created_at' => \Carbon\Carbon::now()->toDateTimeString(),
+                'updated_at' => \Carbon\Carbon::now()->toDateTimeString()
+            ),
+            array(
+                'content'=> 'Are there any spot colours used?',
+                'alias' => str_slug('Are there any spot colours used?'),
+                'category_id' => $category->id,
+                'created_at' => \Carbon\Carbon::now()->toDateTimeString(),
+                'updated_at' => \Carbon\Carbon::now()->toDateTimeString()
+            ),
+            array(
+                'content'=> 'Is the job foiled, embossed or de-bossed?',
+                'alias' => str_slug('Is the job foiled, embossed or de-bossed?'),
+                'category_id' => $category->id,
+                'created_at' => \Carbon\Carbon::now()->toDateTimeString(),
+                'updated_at' => \Carbon\Carbon::now()->toDateTimeString()
+            ),
+            array(
+                'content'=> 'Is there spot UV on the job?',
+                'alias' => str_slug('Is there spot UV on the job?'),
+                'category_id' => $category->id,
+                'created_at' => \Carbon\Carbon::now()->toDateTimeString(),
+                'updated_at' => \Carbon\Carbon::now()->toDateTimeString()
+            ),
+            array(
+                'content'=> 'Is the job machine glued?',
+                'alias' => str_slug('Is the job machine glued?'),
+                'category_id' => $category->id,
+                'created_at' => \Carbon\Carbon::now()->toDateTimeString(),
+                'updated_at' => \Carbon\Carbon::now()->toDateTimeString()
+            ),
+            array(
+                'content'=> 'Is the job wet proofed?',
+                'alias' => str_slug('Is the job wet proofed?'),
+                'category_id' => $category->id,
+                'created_at' => \Carbon\Carbon::now()->toDateTimeString(),
+                'updated_at' => \Carbon\Carbon::now()->toDateTimeString()
+            ),
+            array(
+                'content'=> 'Is the job hand glued?',
+                'alias' => str_slug('Is the job hand glued?'),
+                'category_id' => $category->id,
+                'created_at' => \Carbon\Carbon::now()->toDateTimeString(),
+                'updated_at' => \Carbon\Carbon::now()->toDateTimeString()
+            ),
+            array(
+                'content'=> 'Is the job printed both sides?',
+                'alias' => str_slug('Is the job printed both sides?'),
+                'category_id' => $category->id,
+                'created_at' => \Carbon\Carbon::now()->toDateTimeString(),
+                'updated_at' => \Carbon\Carbon::now()->toDateTimeString()
+            ),
+            array(
+                'content'=> 'Is the job overall UV varnished?',
+                'alias' => str_slug('Is the job overall UV varnished?'),
+                'category_id' => $category->id,
+                'created_at' => \Carbon\Carbon::now()->toDateTimeString(),
+                'updated_at' => \Carbon\Carbon::now()->toDateTimeString()
+            ),
+            array(
+                'content'=> 'Is the job FSC?',
+                'alias' => str_slug('Is the job FSC?'),
                 'category_id' => $category->id,
                 'created_at' => \Carbon\Carbon::now()->toDateTimeString(),
                 'updated_at' => \Carbon\Carbon::now()->toDateTimeString()
             ),
         ));
 
-        $isJobDieCut = Question::where('alias', '=', str_slug('Is the job die cut?'))->firstOrFail();
+        /*$isJobDieCut = Question::where('alias', '=', str_slug('Is the job die cut?'))->firstOrFail();
 
         DB::table('questions')->insert(array(
              array(
@@ -59,6 +122,6 @@ class QuestionsTableSeeder extends Seeder
                 'created_at' => \Carbon\Carbon::now()->toDateTimeString(),
                 'updated_at' => \Carbon\Carbon::now()->toDateTimeString()
             ]);
-        }
+        }*/
     }
 }
